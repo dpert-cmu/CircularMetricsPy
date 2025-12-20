@@ -592,30 +592,23 @@ theme_8_indicators = {
             "Second-hand assets",
             "New assets designed with circular design approaches both during use and end of functional life aspects covered, as defined below",
             """◦
-Longevity: Designed for maintenance, longevity, durability in such a way that encourages lengthy
-use in practice and at scale (e.g. designed for repair rather than replacement, timeless design with
-durable material choices) AND in such a way that does not compromise circular treatment and
-end of functional life
-◦ Reusability: Designed for multiple uses in such a way that ensures actual reuse in practice and at
-scale (e.g. secondary markets, packaging reuse systems, standardised design)
-◦ Repairability: Designed for repair in such a way that uses existing systems for repair in practice
-and at scale (e.g. network of repair shops, your own repair service). Examples of design choices
-are: Modular design / built in predictive maintenance sensors, repair diagnostics etc. / Designed
-with right to repair by third parties / Using standardised components across a sector
-◦ Regeneratively grown materials of biological origin
-◦ Recycled content (only count the % mass that is recycled content)
-""",
+            <ul>
+            <li>Longevity: Designed for maintenance, longevity, durability in such a way that encourages lengthy use in practice and at scale (e.g. designed for repair rather than replacement, timeless design with durable material choices) AND in such a way that does not compromise circular treatment and end of functional life</li>
+            <li>Reusability: Designed for multiple uses in such a way that ensures actual reuse in practice and at scale (e.g. secondary markets, packaging reuse systems, standardised design)</li>
+            <li>Repairability: Designed for repair in such a way that uses existing systems for repair in practice and at scale (e.g. network of repair shops, your own repair service). Examples of design choices are: Modular design / built in predictive maintenance sensors, repair diagnostics etc. / Designed with right to repair by third parties / Using standardised components across a sector</li>
+            <li>Regeneratively grown materials of biological origin</li>
+            <li>Recycled content (only count the % mass that is recycled content)</li>
+            </ul>
+            """,
             """
-◦ Leasing model (e.g. assets can be returned at end of use)
-◦ Design for disassembly (e.g. Product-component passports, modular design,
-reversible connections)
-◦ Designed for remanufacturing / refurbishment (e.g. modular design)
-◦ Design for recycling (e.g. low materials complexity, low toxicity, ease of separating materials),
-whilst prioritising tighter loops (reuse/redistribute, refurbish/remanufacture, and repair) where
-possible, in such a way that uses existing recycling systems that operate in practice and at scale
-◦ Designed for nutrient recirculation that meets the qualifying conditions (e.g. composting
-and anaerobic digestion) in such a way that uses systems in practice and at scale
-""",
+            <ul>
+            <li>Leasing model (e.g. assets can be returned at end of use)</li>
+            <li>Design for disassembly (e.g. Product-component passports, modular design, reversible connections)</li>
+            <li>Designed for remanufacturing / refurbishment (e.g. modular design)</li>
+            <li>Design for recycling (e.g. low materials complexity, low toxicity, ease of separating materials), whilst prioritising tighter loops (reuse/redistribute, refurbish/remanufacture, and repair) where possible, in such a way that uses existing recycling systems that operate in practice and at scale</li>
+            <li>Designed for nutrient recirculation that meets the qualifying conditions (e.g. composting and anaerobic digestion) in such a way that uses systems in practice and at scale</li>
+            </ul>
+            """,
             "None of the above"
         ],
         "column_weights": [1.0, 1.0, 0.5, 0.5, 0.0],
@@ -650,7 +643,8 @@ and anaerobic digestion) in such a way that uses systems in practice and at scal
             "Yes, and all assets are covered by asset recirculation policies or agreements",
             "Data not available"
         ],
-        "col_scores": [0.0, 0.25, 0.50, 1.0, 0.0]
+        "col_scores": [0.0, 0.25, 0.50, 1.0, 0.0],
+        'cell_width_px': 100
     }
 }
 
