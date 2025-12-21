@@ -177,6 +177,7 @@ theme_1_indicators = {
             "dropdown_scores": [0,0.25,0.5,0.75,0.75],
             "checkbox_options": ['Innovation/R&D/design','Corporate strategy','Corporate finance','Supply chain','Production','Sales/marketing','CE/Sustainability','Other'],
             "checkbox_scores": [0.05]*8,
+            "checkbox_label": "For option 5, select all that apply:",
                             "type": "both"},
         '1e': {"prompt": "Are the following publicly available (e.g. in an annual report)?",
                 "options": ['Circular economy strategy','Measurable circular economy targets'],
@@ -301,13 +302,15 @@ theme_3_indicators = {
     },
     "3b": {
         "prompt": "To what extent does your company offer circular economy related training within your company?",
-        "dropdown_descriptions": {level: ['General training on circular economy principles and concepts','Training on circular economy specific to your industry or business function','Formal on the job training (mentorships, trainee programmes, apprenticeships) on circular economy'] for level in ["Directors and above","Managers","Employees"]},
-        "dropdown_options": {level: ["Not offered to all", "Offered to all", "Mandatory for all"] for level in ["Directors and above","Managers","Employees"]},
+        "dropdown_descriptions": ['General training on circular economy principles and concepts','Training on circular economy specific to your industry or business function','Formal on the job training (mentorships, trainee programmes, apprenticeships) on circular economy'],
+        "dropdown_options": ["Not offered to all", "Offered to all", "Mandatory for all"],
         "dropdown_scores": {level: {'General training on circular economy principles and concepts': [0.0,0.25,0.5],
                                     'Training on circular economy specific to your industry or business function': [0.0,0.50,1.0],
                                     'Formal on the job training (mentorships, trainee programmes, apprenticeships) on circular economy': [0.0,0.50,1.0]
                                     } for level in ["Directors and above","Managers","Employees"]},
-        "type": "multiple_dropdown"
+        "type": "multiple_dropdown",
+        "cell_width_px": 200,
+        'first_col_width_px': 200
     },
     "3c": {
         "prompt": "In which functions do you have individuals or project teams with responsibility for circular economy implementation?",
@@ -315,13 +318,21 @@ theme_3_indicators = {
             "Innovation/R&D/design","Corporate strategy","Corporate finance","Supply chain",
             "Production","Sales/marketing","CE/Sustainability","Other"
         ],
+        "index_col_name": "Function",
         "columns": [
+            "Option 1",
+            "Option 2",
+            "Option 3"
+        ],
+        "column_descriptions": [
             "No individuals or project teams working on circular economy implementation",
             "Individuals or project teams working on circular economy implementation during the financial reporting year stated in 0a",
             "Individuals or teams who have circular economy codified in their job description/targets/incentives and are working on circular economy implementation"
         ],
         "col_scores": [0.0,0.15,0.20], 
-        "type": "checkbox_table"
+        "type": "checkbox_table",
+        "cell_width_px": 100,
+        'first_col_width_px': 200
     }
 }
 
@@ -329,12 +340,10 @@ theme_4_indicators = {
     "4a": {
         "prompt": "To what extent is your company implementing digital systems to support circular products or circular services? — select all that apply.",
         "subprompt": """
-                • Such digital systems can be either owned or outsourced.
-                • This includes both internal and client-facing digital systems that are relevant to the delivery of
-                products and services.
-                • Digital systems do not have to be purpose built in order to qualify as ‘support circular products
-                or circular services’. Existing digital systems can qualify if they meet the criteria set out in the
-                definitions for circular products or circular services.
+        <ul><li>Such digital systems can be either owned or outsourced.</li>
+                <li>This includes both internal and client-facing digital systems that are relevant to the delivery of products and services.</li>
+                <li>Digital systems do not have to be purpose built in order to qualify as ‘support circular products or circular services’. Existing digital systems can qualify if they meet the criteria set out in the definitions for circular products or circular services.</li>
+        </ul>
                 """,
         "options": [
             "Digital systems required to deliver the circular economy strategy have been identified",
@@ -349,12 +358,10 @@ theme_4_indicators = {
     "4b": {
         "prompt": "To what extent is your company implementing plant, property, and equipment assets to support circular products or circular services? — select all that apply.",
         "subprompt": """
-• Such plant, property, and equipment assets can be either owned or outsourced.
-• This includes both internal and client-facing plant, property, and equipment assets that are relevant
-to the delivery of products and services.
-• Plant, property, and equipment assets do not have to be purpose built in order to qualify as
-‘support circular products or circular services’. Existing plant, property, and equipment assets can
-qualify if they meet the criteria set out in the definitions for circular products or circular services.
+        <ul><li>Such plant, property, and equipment assets can be either owned or outsourced.</li>
+        <li>This includes both internal and client-facing plant, property, and equipment assets that are relevant to the delivery of products and services.</li>
+        <li>Plant, property, and equipment assets do not have to be purpose built in order to qualify as 'support circular products or circular services.' Existing plant, property, and equipment assets can qualify if they meet the criteria set out in the definitions for circular products or circular services.</li>
+        </ul>
                 """,
         "options": [
             "Assets needed to deliver on the circular economy strategy have been identified",
@@ -372,10 +379,7 @@ theme_5_indicators = {
     "5a": {
         "prompt": "To what extent do you engage with suppliers to increase sourcing based on circular economy principles? ",
         "subprompt": 
-        """
-• Supplier here includes suppliers of materials / products / plant, property, and equipment assets, as
-well as suppliers you engage with at the end-of-use or end of functional life of materials / products
-/ plant, property, and equipment assets
+        """Supplier here includes suppliers of materials / products / plant, property, and equipment assets, as well as suppliers you engage with at the end-of-use or end of functional life of materials / products/ plant, property, and equipment assets
         """,
         "options": [
             "No interactions involving circular economy as a topic","Ad-hoc interactions involving circular economy as a topic",
@@ -420,7 +424,8 @@ well as suppliers you engage with at the end-of-use or end of functional life of
         "weight": 0.15
     },
     "5e": {
-        "prompt": "Do you have a membership of or actively engage with circular economy related initiatives?",
+        "prompt": "Do you have membership in or actively engage with any of the following circular economy related initiatives?",
+        "subprompt": "<ul><li>Select 'membership' or 'active engagement' for all that apply:</li><li>This extends to local community engagement initiatives with programme-level impact monitoring, which raise awareness of and educate on circular economy topics.</li></ul>",
         "rows": [
             "Ellen MacArthur Foundation Business Network",
             "Platform for Accelerating the Circular Economy (PACE)",
@@ -432,16 +437,19 @@ well as suppliers you engage with at the end-of-use or end of functional life of
             "Coalition on Circular Economy (Latin America and the Caribbean)",
             "Other"
         ],
+        "index_col_name": "Initiative",
         "columns": ["membership", "active engagement"],
-        "col_scores": {0.33, 0.67},
+        "col_scores": [0.33, 0.67],
         "type": "checkbox_table", 
-        "weight": 0.10
+        "weight": 0.10,
+        "cell_width_px": 150,
+        'first_col_width_px': 400
     }
 }
 
 theme_6_indicators = {
     "6a": {
-        "prompt": "What % (by mass) of MIN (from 0m) is:",
+        "prompt": "What % (by mass) of M_IN (from 0m) is:",
         "items": [
             {"label": "Non-virgin (e.g. reused and recycled products and materials)", "type": "slider"},
             {"label": "Sourced from by-products/waste streams (e.g. offcuts of a material that has not previously been in a product)", "type": "slider"},
@@ -456,15 +464,15 @@ theme_6_indicators = {
         "type": "sliders"
     },
     "6b": {
-        "prompt": "What % (by mass) of MWASTE1 (from 0o. Part 1), is material processing waste or by-products that go to landfill or incineration (and are therefore not recirculated)?",
+        "prompt": "What % (by mass) of M_WASTE1 (from 0o. Part 1), is material processing waste or by-products that go to landfill or incineration (and are therefore not recirculated)?",
         "type": "slider",
     },
     "6c": {
-        "prompt": "What % (by mass) of MWASTE2 (from 0o. Part 2) is materials processing waste or by-products that go to landfill or incineration (and are therefore not recirculated)?",
+        "prompt": "What % (by mass) of M_WASTE2 (from 0o. Part 2) is materials processing waste or by-products that go to landfill or incineration (and are therefore not recirculated)?",
         "type": "slider",
     },
     "6d": {
-        "prompt": "What % (by mass) of your physical products (MPROD1 + MPROD2 from 0n. Part 1 and 0n. Part 2) are designed along circular economy principles?",
+        "prompt": "What % (by mass) of your physical products (M_PROD1 + M_PROD2 from 0n. Part 1 and 0n. Part 2) are designed along circular economy principles?",
         "items": [
             {"label": "BOTH Category 1 and Category 2", "type": "slider"},
             {"label": "Only Category 1: During use", "type": "slider"},
@@ -476,7 +484,7 @@ theme_6_indicators = {
         "type": "sliders",
     },
     "6e": {
-        "prompt": "Do your product and material outflows (all products, packaging, material processing waste and by-products) (MPROD1 + MPROD2 + MWASTE1 + MWASTE2) (sum of 0n. Part 1, 0n. Part 2, 0o. Part 1, and 0o. Part 2) comply with either of the following chemical restriction lists?",
+        "prompt": "Do your product and material outflows (all products, packaging, material processing waste and by-products) (M_PROD1 + M_PROD2 + M_WASTE1 + M_WASTE2) (sum of 0n. Part 1, 0n. Part 2, 0o. Part 1, and 0o. Part 2) comply with either of the following chemical restriction lists?",
         "type": "checkbox",
         "options": [
             "No substances from the EU REACH Candidate List nor substances from the ChemSec SIN List have been intentionally added at any concentration or are in any material outflows as contaminants in quantities over 0.1% w/w (1,000 ppm)",
@@ -487,7 +495,7 @@ theme_6_indicators = {
         "scores": [1.0, 1.0, 0.0, 0.0]  # each adds 50%; both = 100
     },
     "6f_part1": {
-        "prompt": "What % (by mass) of your products and materials (MPROD2 from 0n. Part 2) are recirculated in practice in the following ways (only counting the first cycle of recirculation after initial use):",
+        "prompt": "What % (by mass) of your products and materials (M_PROD2 from 0n. Part 2) are recirculated in practice in the following ways (only counting the first cycle of recirculation after initial use):",
         "items": [
             {"label": "Reuse/redistribution", "type": "slider"},
             {"label": "Refurbishment/remanufacture", "type": "slider"},
@@ -501,7 +509,8 @@ theme_6_indicators = {
     "6f_part2": {
         "prompt": "For all products and materials that are recirculated through reuse in 6f. Part 1., how many average uses do your products have before reaching the end of functional life?",
         "type": "float",
-        "percentage": False
+        "percentage": False,
+        "min": 0,
     }
 }
 
@@ -568,6 +577,7 @@ theme_8_indicators = {
     "8a": {
         "prompt": "For each of the asset groups selected in 0q. Part 2: What % (by mass) of your plant, property, and equipment assets procured in the financial year (as stated in 0a.) were procured with the following circular procurement approaches? ",
         "type": "float_table",
+        "index_col_name": "Asset Group",
         "rows": [
             'IT equipment',
             'Textiles',
@@ -591,7 +601,7 @@ theme_8_indicators = {
         "column_descriptions": [
             "Second-hand assets",
             "New assets designed with circular design approaches both during use and end of functional life aspects covered, as defined below",
-            """◦
+            """
             <ul>
             <li>Longevity: Designed for maintenance, longevity, durability in such a way that encourages lengthy use in practice and at scale (e.g. designed for repair rather than replacement, timeless design with durable material choices) AND in such a way that does not compromise circular treatment and end of functional life</li>
             <li>Reusability: Designed for multiple uses in such a way that ensures actual reuse in practice and at scale (e.g. secondary markets, packaging reuse systems, standardised design)</li>
@@ -612,6 +622,7 @@ theme_8_indicators = {
             "None of the above"
         ],
         "column_weights": [1.0, 1.0, 0.5, 0.5, 0.0],
+        "min": 0,
     },
     "8b": {
         "prompt": "For each of the asset groups selected in 0r. Part 2: Does your company have policies or agreements in place for the end-of-use of existing plant, property and equipment assets (all assets) that enable recirculation in practice?",
@@ -629,6 +640,7 @@ theme_8_indicators = {
             'Light transport',
             'Warehousing equipment',
         ],
+        "index_col_name": "Asset Group",
         "columns": [
             "Option 1",
             "Option 2",

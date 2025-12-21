@@ -21,7 +21,7 @@ def to_letter_score(score):
 def asset_row_widgets(label):
     asset_label = w.Label(value=label, layout=w.Layout(width='225px'), style = {'description_width': 'initial'})
     mass_label = w.Label(value = f"{ASSET_AVG_MASS[label]} t/item" if label != "Buildings" else f"{ASSET_AVG_MASS[label]} t/m2", layout=w.Layout(width='120px'))
-    mass_estimate = w.FloatText(value=0.0, disabled=False, layout=w.Layout(width='200px'),style = {'description_width': 'initial'})
+    mass_estimate = w.BoundedFloatText(value=0.0, min=0.0, disabled=False, layout=w.Layout(width='200px'),style = {'description_width': 'initial'})
     
     return {
         'name': label,
@@ -89,15 +89,15 @@ def theme6_indicator_weights(company_info, masses, theme_indicator_widgets):
         applicable_inds = ['6a','6c','6d','6e','6f_part1','6f_part2']
     else: 
         applicable_inds = ['6a','6b','6c','6d','6e','6f_part1','6f_part2']
-    denoms = {'6a':masses.get('MIN',0.0),
-              '6b':masses.get('MWASTE1',0.0),
-              '6c':masses.get('MWASTE2',0.0),
-              '6d':masses.get('MPROD1',0.0)+masses.get('MPROD2',0.0),
-              '6e':masses.get('MPROD1',0.0)+masses.get('MPROD2',0.0)+masses.get('MWASTE1',0.0)+masses.get('MWASTE2',0.0),
-              '6f_part1':masses.get('MPROD2',0.0),
+    denoms = {'6a':masses.get('M_IN',0.0),
+              '6b':masses.get('M_WASTE1',0.0),
+              '6c':masses.get('M_WASTE2',0.0),
+              '6d':masses.get('M_PROD1',0.0)+masses.get('M_PROD2',0.0),
+              '6e':masses.get('M_PROD1',0.0)+masses.get('M_PROD2',0.0)+masses.get('M_WASTE1',0.0)+masses.get('M_WASTE2',0.0),
+              '6f_part1':masses.get('M_PROD2',0.0),
     }
     if '6f_part2' in applicable_inds:
-        denoms['6f_part2'] = (theme_indicator_widgets[6]['6f_part1']['sliders'][0].value)*masses.get('MPROD2',0.0)
+        denoms['6f_part2'] = (theme_indicator_widgets[6]['6f_part1']['sliders'][0].value)*masses.get('M_PROD2',0.0)
     denoms = {k:v for k,v in denoms.items() if k in applicable_inds}
     total = sum(denoms.values())
     return {k:(v/total) if total>0 else 0.0 for k,v in denoms.items()}
@@ -145,35 +145,48 @@ def build_theme_8_indicator_ui():
     ui_8_owned = w.VBox(asset_rows_owned)
     return asset_widgets_procured, asset_widgets_owned, ui_8_procured, ui_8_owned
 
-def create_weighting_info_ui(company_info):
+def create_weighting_info_ui(company_info, applicable_outcomes_themes):
     weighting_boxes = {}
 
     theme_6_header = w.HTML(value='<h1>Weighting information for Theme 6. Products and materials</h1>')
-    M_in_description = w.Label(value='Please provide MIN, the total annual mass of all inflow products and materials (metric tonnes)')
-    M_in = w.FloatText(value=0.0)
+    M_in_description = w.Label(value='Please provide M_IN, the total annual mass of all inflow products and materials (metric tonnes)')
+    M_in = w.BoundedFloatText(value=0.0, min=0.0)
     M_In_container = w.VBox([M_in_description, M_in])
+    items_for_box = [theme_6_header, M_In_container]
 
-    M_prod1_description = w.Label(value='Please provide the total annual outflow mass of products and materials that are designed to be consumed (e.g. food and feed) (metric tonnes). Subsequently referred to as MPROD1.')
-    M_prod1 = w.FloatText(value=0.0)
+    M_prod1_description = w.Label(value='Please provide the total annual outflow mass of products and materials that are designed to be consumed (e.g. food and feed) (metric tonnes). Subsequently referred to as M_PROD1.')
+    M_prod1 = w.BoundedFloatText(value=0.0, min=0.0)
     M_prod1_container = w.VBox([M_prod1_description, M_prod1])
 
-    M_prod2_description = w.Label(value='Please provide the total annual outflow mass of products and materials that are designed to be used (metric tonnes). Subsequently referred to as MPROD2.')
-    M_prod2 = w.FloatText(value=0.0)
+    M_prod2_description = w.Label(value='Please provide the total annual outflow mass of products and materials that are designed to be used (metric tonnes). Subsequently referred to as M_PROD2.')
+    M_prod2 = w.BoundedFloatText(value=0.0, min=0.0)
     M_prod2_container = w.VBox([M_prod2_description, M_prod2])
 
-    M_waste1_description = w.Label(value='Please provide the total annual outflow mass of materials processing waste and by-products that originate from products that are designed to be consumed (e.g. food waste) (metric tonnes). Subsequently referred to as MWASTE1.', layout=w.Layout(width='1400px'))
-    M_waste1 = w.FloatText(value=0.0)
+    M_waste1_description = w.Label(value='Please provide the total annual outflow mass of materials processing waste and by-products that originate from products that are designed to be consumed (e.g. food waste) (metric tonnes). Subsequently referred to as M_WASTE1.', layout=w.Layout(width='1400px'))
+    M_waste1 = w.BoundedFloatText(value=0.0, min=0.0)
     M_waste1_container = w.VBox([M_waste1_description, M_waste1])
 
-    M_waste2_description = w.Label(value='Please provide the total annual outflow mass of materials processing waste and by-products that originate from products that are designed to be used (metric tonnes). Subsequently referred to as MWASTE2.')
-    M_waste2 = w.FloatText(value=0.0)
+    M_waste2_description = w.Label(value='Please provide the total annual outflow mass of materials processing waste and by-products that originate from products that are designed to be used (metric tonnes). Subsequently referred to as M_WASTE2.')
+    M_waste2 = w.BoundedFloatText(value=0.0, min=0.0)
     M_waste2_container = w.VBox([M_waste2_description, M_waste2])
 
-    weighting_boxes[6] = w.VBox([theme_6_header, M_In_container, M_prod1_container, M_prod2_container, M_waste1_container, M_waste2_container])
+    if company_info['types_of_flows'] != "Products and materials that are designed to be used":
+        items_for_box.append(M_prod1_container)
+
+    if company_info['types_of_flows'] != "Products and materials that are designed to be consumed":
+        items_for_box.append(M_prod2_container)
+
+    if company_info['types_of_flows'] != "Products and materials that are designed to be used":
+        items_for_box.append(M_waste1_container)
+
+    if company_info['types_of_flows'] != "Products and materials that are designed to be consumed":
+        items_for_box.append(M_waste2_container)
+
+    weighting_boxes[6] = w.VBox(items_for_box)
 
     theme_7_header = w.HTML(value='<h1>Weighting information for Theme 7. Services</h1>')
     services_description = w.Label(value='Please provide the % share of total annual revenue that comes from your company’s services.')
-    services = w.FloatText(value=0.0)
+    services = w.BoundedFloatText(value=0.0, min=0.0, max=100.0)
     services_container = w.VBox([theme_7_header, services_description, services])
 
     weighting_boxes[7] = services_container
@@ -192,12 +205,12 @@ def create_weighting_info_ui(company_info):
     prompt_0q_part2 = w.HTML('<h3>0q. Part 2. For each plant, property, and equipment asset category procured in the financial year stated at the beginning of the assessment: Select asset categories that cover a minimum of 80% of the mass estimates provided in 0q. Part 1.</h3>')
     subprompt_0q_part2 = w.HTML('<h4>Your selections here will be used to inform the relevance and weighting of asset groups in indicator 8b.</h4>')
     header = w.Label(value='Asset group', layout=w.Layout(width='200px'))
-    asset_selection_table_0q = w.VBox([prompt_0q_part2,subprompt_0q_part2, header] + [w.Checkbox(value=False, description=a, indent=False) for a in ASSET_GROUPS])
+    asset_selection_table_0q = w.VBox([prompt_0q_part2,subprompt_0q_part2, header] + [w.Checkbox(value=False, description=a, indent=False, style={'description_width': 'initial'}) for a in ASSET_GROUPS])
 
     prompt_0r_part2 = w.HTML('<h3>0r. Part 2. For each plant, property and equipment asset category procured during or before the financial year (FY) stated at the beginning of the assessment (and owned or leased at any point during the FY). Select asset categories that cover a minimum of 80% of the mass estimates provided in 0r. Part 1.</h3>')
     subprompt_0r_part2 = w.HTML('<h4>Your selections here will be used to inform the relevance and weighting of asset groups in indicator 8b.</h4>')
     header = w.Label(value='Asset group', layout=w.Layout(width='200px'))
-    asset_selection_table_0r = w.VBox([prompt_0r_part2, subprompt_0r_part2, header] + [w.Checkbox(value=False, description=a, indent=False) for a in ASSET_GROUPS])
+    asset_selection_table_0r = w.VBox([prompt_0r_part2, subprompt_0r_part2, header] + [w.Checkbox(value=False, description=a, indent=False, style={'description_width': 'initial'}) for a in ASSET_GROUPS])
 
     weighting_boxes[8] = w.VBox([theme_8_header, theme_8_subheader, ui_8_procured, ui_8_owned, asset_selection_table_0q, asset_selection_table_0r])
 
@@ -210,22 +223,22 @@ def create_weighting_info_ui(company_info):
        </ul>
     ''')
     water_demand_desc = w.Label(value='Please provide the total annual water demand (sourcing plus internal recirculation) volume (megalitres) for your company.')
-    water_demand = w.FloatText(value=0.0)
+    water_demand = w.BoundedFloatText(value=0.0, min=0.0)
     water_demand_container = w.VBox([water_demand_desc, water_demand])
 
     water_outflow_desc = w.Label(value='Please provide the total annual water outflow volume (megalitres) for your company.')
-    water_outflow = w.FloatText(value=0.0)
+    water_outflow = w.BoundedFloatText(value=0.0, min=0.0)
     water_outflow_container = w.VBox([water_outflow_desc, water_outflow])
 
     weighting_boxes[9] = w.VBox([theme_9_header, theme_9_instructions, water_demand_container, water_outflow_container])
 
     theme_10_header = w.HTML(value='<h1>Weighting information for Theme 10. Energy</h1>')
     energy_use_desc = w.Label(value='What is the total annual energy usage (MWh) of your operations?')
-    energy_use = w.FloatText(value=0.0)
+    energy_use = w.BoundedFloatText(value=0.0, min=0.0)
     energy_use_container = w.VBox([energy_use_desc, energy_use])
     
     energy_prod_desc = w.Label(value='What is the total annual energy production (MWh) of your company?')
-    energy_prod = w.FloatText(value=0.0)
+    energy_prod = w.BoundedFloatText(value=0.0, min=0.0)
     if company_info['energy_producer']:
         energy_prod_container = w.VBox([energy_prod_desc, energy_prod])
         weighting_boxes[10] = w.VBox([theme_10_header, energy_use_container, energy_prod_container])
@@ -234,13 +247,13 @@ def create_weighting_info_ui(company_info):
 
     theme_11_header = w.HTML(value='<h1>Weighting information for Theme 11. Finance</h1>')
     finance_weight_prompt = w.Label(value='What was the total size of each of the following categories at the end of the financial year stated at the beginning of the assessment (in USD)?')
-    lending = w.FloatText(value=0.0, description='Lending')
-    fixed_income = w.FloatText(value=0.0, description='Fixed income',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    private_eq = w.FloatText(value=0.0, description='Private equity',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    listed_eq = w.FloatText(value=0.0, description='Listed equity',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    other_fin_1 = w.FloatText(value=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    other_fin_2 = w.FloatText(value=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    other_fin_3 = w.FloatText(value=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    lending = w.BoundedFloatText(value=0.0, min=0.0, description='Lending')
+    fixed_income = w.BoundedFloatText(value=0.0, min=0.0, description='Fixed income',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    private_eq = w.BoundedFloatText(value=0.0, min=0.0, description='Private equity',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    listed_eq = w.BoundedFloatText(value=0.0, min=0.0, description='Listed equity',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    other_fin_1 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    other_fin_2 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    other_fin_3 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
     finance_weights = [lending, fixed_income, private_eq, listed_eq, other_fin_1, other_fin_2, other_fin_3]
     weighting_boxes[11] = w.VBox([theme_11_header, finance_weight_prompt,lending, fixed_income, private_eq, listed_eq, other_fin_1, other_fin_2, other_fin_3])
     return weighting_boxes, M_in, M_prod1, M_prod2, M_waste1, M_waste2, water_demand, water_outflow, energy_use, energy_prod, asset_widgets_procured, asset_widgets_owned, finance_weights
@@ -276,7 +289,7 @@ def create_indicator_ui(company_info, industry_type, finance_weights, asset_widg
                 theme_items.append(container)
                 theme_indicator_widgets[theme_num][indicator] = widget
             elif info["type"] == "both":
-                container, widget = build_both_block(indicator, info['prompt'], info['dropdown_options'], info['dropdown_scores'], "Select all that apply:", info['checkbox_options'], subprompt = info.get('subprompt', None))
+                container, widget = build_both_block(indicator, info['prompt'], info['dropdown_options'], info['dropdown_scores'], info.get('checkbox_label', "Select all that apply:"), info['checkbox_options'], subprompt = info.get('subprompt', None))
                 theme_items.append(container)
                 theme_indicator_widgets[theme_num][indicator] = widget
             elif info["type"] == "slider":
@@ -311,7 +324,8 @@ def create_indicator_ui(company_info, industry_type, finance_weights, asset_widg
                     info['dropdown_scores'],
                     level_order=info.get('level_order', None),
                     description_width=info.get('description_width', 'initial'),
-                    dropdown_width_px=info.get('dropdown_width_px', 360)
+                    dropdown_width_px=info.get('cell_width_px', 360),
+                    first_col_width_px=info.get('first_col_width_px', 500)
                 )
                 theme_items.append(container)
                 theme_indicator_widgets[theme_num][indicator] = api
@@ -330,19 +344,27 @@ def create_indicator_ui(company_info, industry_type, finance_weights, asset_widg
                 container, api = build_checkbox_table_block(
                     indicator,
                     info['prompt'],
+                    info.get('subprompt', None),
                     info['rows'],
                     column_labels=info.get('columns', []),
                     column_descriptions=info.get('column_descriptions', None),
+                    index_col_name = info.get('index_col_name', ""),
                     per_col_scores=info.get('col_scores', None),
                     per_cell_scores=info.get('cell_scores', None),
                     description_width=info.get('description_width', 'initial'),
-                    cell_width_px=info.get('cell_width_px', 200)
+                    cell_width_px=info.get('cell_width_px', 500),
+                    first_col_width_px=info.get('first_col_width_px', 500)
                 )
                 theme_items.append(container)
                 theme_indicator_widgets[theme_num][indicator] = api
             elif info['type'] == 'float':
                 label = w.Label(value=info['prompt'])
-                float_box = w.FloatText(value=0.0)
+                kwargs = {"value": 0.0}
+                if 'min' in info:
+                    kwargs['min'] = info['min']
+                if 'max' in info:
+                    kwargs['max'] = info['max']
+                float_box = w.BoundedFloatText(**kwargs)
                 container = w.VBox([label, float_box])
                 theme_items.append(container)
                 theme_indicator_widgets[theme_num][indicator] = float_box
@@ -361,10 +383,13 @@ def create_indicator_ui(company_info, industry_type, finance_weights, asset_widg
                     info['column_descriptions'],
                     info['column_weights'],
                     procured_asset_weights,
-                    asset_widgets_procured=asset_widgets_procured
+                    asset_widgets_procured=asset_widgets_procured,
+                    index_col_name=info.get('index_col_name', "")
                 )
                 theme_items.append(container)
                 theme_indicator_widgets[theme_num][indicator] = api
+            else:
+                raise NotImplementedError(f"User interface for Indicator type {info['type']} not implemented yet.")
 
         theme_box = w.VBox(theme_items)
         theme_indicator_ui_boxes[theme_num] = theme_box
@@ -386,15 +411,15 @@ def build_dropdown_block(indicator_code: str, prompt: str, options: list[str], s
     if len(options) > 1:
         dropdown = w.Dropdown(
             options=[(f"Option {i+1}", scores[i]) for i in range(len(options))],
-            description=f"Select Answer for {indicator_code}",
+            description=f"Select Answer:",
             style={'description_width': 'initial'}
         )
     else:
-        dropdown = w.Dropdown(options=[("Option 1", 1.0)], description=f"Select Answer for {indicator_code}")
+        dropdown = w.Dropdown(options=[("Option 1", 1.0)], description=f"Select Answer:")
     items_for_box = prompts + options_list + [dropdown]
     ui = {'dropdown': dropdown}
     if bonus_checkbox is not None:
-        cb = w.Checkbox(value=False, description=bonus_checkbox.get('label',''), indent=False)
+        cb = w.Checkbox(value=False, description=bonus_checkbox.get('label',''), indent=False, style={'description_width': 'initial'}, layout=w.Layout(width='800px'))
         items_for_box.append(cb)
         ui['bonus_checkbox'] = cb
     return w.VBox(items_for_box), ui
@@ -404,13 +429,16 @@ def build_checkbox_block(indicator_code: str, prompt: str, options: list[str], s
     Render prompt heading + checkboxes for 'select all that apply' pattern,
     consistent with Theme 1 (e.g., 1e; 1d functions block).
     """
-    prompt_h3 = w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")
-    prompts = [prompt_h3]
+    # Heading/prompt
+    heading_text = f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>"
     if subprompt is not None:
-        subprompt_w = w.Label(value=subprompt)
-        prompts.append(subprompt_w)
-    cbs = [w.Checkbox(value=False, description=opt, indent=False) for opt in options]
-    return w.VBox(prompts + cbs), cbs
+        if "</" in subprompt:
+            heading_text += subprompt
+        else:
+            heading_text += f"<h4>{subprompt}</h4>"
+    heading = w.HTML(heading_text)
+    cbs = [w.Checkbox(value=False, description=opt, indent=False, style={'description_width': 'initial'}, layout=w.Layout(width='1000px')) for opt in options]
+    return w.VBox([heading] + cbs), cbs
 
 def build_grouped_checkbox_block(indicator_code: str, prompt: str, group_labels: list[str],group_sublabels: list[str], group_options: list[list[str]], subprompt: str | None = None) -> w.VBox:
     """
@@ -419,7 +447,10 @@ def build_grouped_checkbox_block(indicator_code: str, prompt: str, group_labels:
     prompt_h3 = w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")
     prompts = [prompt_h3]
     if subprompt is not None:
-        subprompt_w = w.Label(value=subprompt)
+        if "</" in subprompt:
+            subprompt_w = w.HTML(subprompt)
+        else:
+            subprompt_w = w.Label(value=subprompt)
         prompts.append(subprompt_w)
     all_cbs = []
     for glabel, gsublabel, goptions in zip(group_labels, group_sublabels, group_options):
@@ -427,7 +458,7 @@ def build_grouped_checkbox_block(indicator_code: str, prompt: str, group_labels:
         prompts.append(group_header)
         sublabel_w = w.Label(value=gsublabel)
         prompts.append(sublabel_w)
-        cbs = [w.Checkbox(value=False, description=opt, indent=False) for opt in goptions]
+        cbs = [w.Checkbox(value=False, description=opt, indent=False, style={'description_width': 'initial'}, layout=w.Layout(width='1000px')) for opt in goptions]
         prompts.extend(cbs)
         all_cbs.append(cbs)
     return w.VBox(prompts), all_cbs
@@ -445,11 +476,11 @@ def build_both_block(indicator_code: str, prompt: str, dropdown_options: list[st
     dd_opts_visible = [w.Label(value=f"{i+1}: {opt}") for i, opt in enumerate(dropdown_options)]
     dropdown = w.Dropdown(
         options=[(f"Option {i+1}", dropdown_scores[i]) for i in range(len(dropdown_options))],
-        description=f"Select Answer for {indicator_code}",
+        description=f"Select Answer:",
         style={'description_width': 'initial'}
     )
     cb_prompt = w.HTML(f"<h4>{checkbox_label}</h4>")
-    cbs = [w.Checkbox(value=False, description=opt, indent=False) for opt in checkbox_options]
+    cbs = [w.Checkbox(value=False, description=opt, indent=False, style={'description_width': 'initial'}) for opt in checkbox_options]
     return w.VBox(prompts + dd_opts_visible + [dropdown, cb_prompt] + cbs), (dropdown, cbs)
 
 def build_info_input_block(title_h3: str, sublabel: str, widget: w.Widget) -> w.VBox:
@@ -563,7 +594,7 @@ def build_composite_slider_block(
         _step = float(item.get("step", step))
         _val = float(item.get("value", 0.0))
         
-        label = w.Label(value=lbl, layout=w.Layout(width='200px'))
+        label = w.HTML(f"<p>{lbl}</p>")
         slider_widget_container_items = [label]
         if "sublabel" in item:
             sublabel = w.Label(value=item["sublabel"], layout=w.Layout(width='400px'))
@@ -582,47 +613,28 @@ def build_composite_slider_block(
         slider_widgets.append(slider)
 
     # Total readouts (if enabled)
-    total_row = w.HBox([])
     weighted_row = w.HBox([])
-    total_value_label = w.Label(value="")
-    weighted_value_label = w.Label(value="")
+    score_label = w.Label(value="")
+
+    def get_weighted_score():
+        vals = [s.value for s in slider_widgets]
+        if weights is None:
+            return max(0, min(1, sum(vals)))
+        return max(0, min(1, sum(wt * val for wt, val in zip(weights, vals))))
 
     def recompute_totals(*_):
-        values = [s.value for s in slider_widgets]
-        raw_sum = sum(values)
-        total_text = f"{total_label}: {raw_sum:.2f}"
-        if cap_total_at is not None:
-            total_text += f" (cap {cap_total_at:.0f})"
-        total_value_label.value = total_text
-
-        if weights is not None:
-            wsum = sum(wt * val for wt, val in zip(weights, values))
-            wtxt = f"{weighted_total_label}: {wsum:.2f}"
-            if cap_total_at is not None:
-                wtxt += f" (cap {cap_total_at:.0f})"
-            weighted_value_label.value = wtxt
-
-    if show_total:
-        total_row.children = [total_value_label]
-        if weights is not None:
-            weighted_row.children = [weighted_value_label]
-        # Attach listeners
-        for s in slider_widgets:
-            s.observe(recompute_totals, names="value")
-        recompute_totals()
+        score = get_weighted_score()
+        total_text = f"{total_label}: {score:.0%}"
+        score_label.value = total_text
 
     # Container assembly
-    block = w.VBox(heading + slider_widget_containers + ([total_row] if show_total else []) + ([weighted_row] if (show_total and weights is not None) else []))
+    block = w.VBox(heading + slider_widget_containers + ([weighted_row] if show_total else []))
 
     # API helpers
     def get_values():
         return {lbl: s.value for lbl, s in zip(labels, slider_widgets)}
 
-    def get_weighted_score():
-        vals = [s.value for s in slider_widgets]
-        if weights is None:
-            return sum(vals)
-        return sum(wt * val for wt, val in zip(weights, vals))
+    
 
     api = {
         "get_values": get_values,
@@ -637,13 +649,14 @@ def build_composite_slider_block(
 def build_grouped_multiple_dropdown_block(
     indicator_code: str,
     prompt: str,
-    dropdown_descriptions: dict[str, list[str]],
-    dropdown_options: dict[str, list[str]],
+    dropdown_descriptions: list[str],
+    dropdown_options: list[str],
     dropdown_scores: dict[str, dict[str, list[float]]],
     *,
     level_order: list[str] | None = None,
     description_width: str = 'initial',
-    dropdown_width_px: int = 360
+    dropdown_width_px: int = 500,
+    first_col_width_px: int = 200
 ):
     """
     Build a multi-dropdown UI where dropdowns are grouped into rows by 'level',
@@ -655,14 +668,13 @@ def build_grouped_multiple_dropdown_block(
         e.g., "3b"
     prompt : str
         Heading text for the whole block.
-    dropdown_descriptions : dict[str, list[str]]
-        { level: [training_1_label, training_2_label, training_3_label, ...], ... }
-    dropdown_options : dict[str, list[str]]
-        { level: [option_1, option_2, option_3, ...], ... }
-        The same option list is applied to each training for that level.
+    dropdown_descriptions : list[str]
+        [training_1_label, training_2_label, training_3_label, ...]
+    dropdown_options : list[str]
+        [option_1, option_2, option_3, ...]
     dropdown_scores : dict[str, dict[str, list[float]]]
         { level: { training_label: [score_for_option_1, score_for_option_2, ...], ... }, ... }
-        Scores should be floats 0..1 aligned with dropdown_options[level].
+        Scores should be floats 0..1 aligned with dropdown_options.
     level_order : list[str] | None
         If provided, defines the row ordering of levels; otherwise uses dict insertion order.
     description_width : str
@@ -685,28 +697,33 @@ def build_grouped_multiple_dropdown_block(
     # --- Heading
     heading = w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")
 
+    desc_html_parts = []
+    labels = [f"Option {i+1}" for i in range(len(dropdown_descriptions))]
+    for j, (label, desc) in enumerate(zip(labels, dropdown_descriptions), start=1):
+        desc_html_parts.append(f"<p><b>{label}</b>: {desc}</p>")
+    desc_html = "<div>" + "\n".join(desc_html_parts) + "</div>"
+    desc_block = w.Accordion(children=[w.HTML(value=desc_html)])
+    desc_block.set_title(0, "Option descriptions")
+    desc_block.selected_index = None  # collapsed by default
+
     # --- Determine level order
-    levels = level_order if level_order else list(dropdown_descriptions.keys())
+    levels = level_order if level_order else list(dropdown_scores.keys())
+
+    # --- Column names
+    column_names = w.HBox([w.Label(value="Seniority level",style={'description_width': description_width}, layout=w.Layout(width=f"{first_col_width_px}px"))]+[ w.Label(value=d,style={'description_width': description_width}, layout=w.Layout(width=f"{dropdown_width_px}px")) for d in labels])
 
     # --- Build rows per level
-    level_rows = []                      # list of HBox rows
+    level_rows = [column_names]                      # list of HBox rows
     widgets_map: dict[str, dict[str, w.Dropdown]] = {}
-    trainings_map: dict[str, list[str]] = {}
 
     for lvl in levels:
-        trainings = dropdown_descriptions[lvl]
-        trainings_map[lvl] = trainings
-        opts = dropdown_options.get(lvl, [])
-        if not opts:
-            raise ValueError(f"No dropdown_options provided for level '{lvl}'.")
-
         # One dropdown per training; label above dropdown
-        col_vboxes = []
+        col_boxes = []
         widgets_map[lvl] = {}
 
-        for t_label in trainings:
+        for t_label in dropdown_descriptions:
             # Pair options as (label, index) to keep index mapping explicit
-            dd_options = [(opt, idx) for idx, opt in enumerate(opts)]
+            dd_options = [(opt, idx) for idx, opt in enumerate(dropdown_options)]
             dd = w.Dropdown(
                 options=dd_options,
                 style={'description_width': description_width},
@@ -714,14 +731,11 @@ def build_grouped_multiple_dropdown_block(
             )
             # Store widget
             widgets_map[lvl][t_label] = dd
-
-            # VBox: label above dropdown
-            label = w.Label(value=t_label,style={'description_width': description_width}, layout=w.Layout(width=f"{dropdown_width_px}px"))
-            col_vboxes.append(w.VBox([label, dd]))
+            col_boxes.append(dd)
 
         # Row heading for the level + the three dropdowns
-        level_heading = w.Label(value=f"{lvl}")
-        row = w.VBox([level_heading, w.HBox(col_vboxes)])
+        level_heading = w.Label(value=f"{lvl}",style={'description_width': description_width}, layout=w.Layout(width=f"{first_col_width_px}px"))
+        row = w.HBox([level_heading] + col_boxes)
         level_rows.append(row)
 
     # --- Summary label
@@ -749,27 +763,20 @@ def build_grouped_multiple_dropdown_block(
                     out[lvl][t_label] = 0.0
                 else:
                     # Map index to score
-                    try:
-                        out[lvl][t_label] = float(score_list[sel_idx])
-                    except Exception:
-                        out[lvl][t_label] = 0.0
+                    out[lvl][t_label] = float(score_list[sel_idx])
         return out
 
     def get_total_score():
         # Flatten all scores and average; scale to % (0..1)
         s_map = get_scores()
-        vals = []
-        for lvl in levels:
-            for t_label in trainings_map[lvl]:
-                vals.append(s_map[lvl][t_label])
-        if not vals:
+        level_scores = [max([s_map[lvl][t_label] for t_label in dropdown_descriptions]) for lvl in levels]
+        if not level_scores:
             return 0.0
-        avg = sum(vals) / len(vals)
-        return float(avg)
+        return np.mean(level_scores)
 
     # --- Live update
     def _on_change(_):
-        summary_label.value = f"Average score: {get_total_score():.2f}%"
+        summary_label.value = f"Score: {get_total_score():.2%}"
 
     for lvl in levels:
         for dd in widgets_map[lvl].values():
@@ -777,7 +784,7 @@ def build_grouped_multiple_dropdown_block(
     _on_change(None)
 
     # --- Assemble UI
-    ui = w.VBox([heading] + level_rows + [summary_label])
+    ui = w.VBox([heading, desc_block] + level_rows + [summary_label])
 
     api = {
         "get_selections": get_selections,
@@ -785,7 +792,6 @@ def build_grouped_multiple_dropdown_block(
         "get_total_score": get_total_score,
         "widgets": widgets_map,
         "levels": levels,
-        "trainings": trainings_map
        }
     return ui, api
 
@@ -793,13 +799,16 @@ def build_grouped_multiple_dropdown_block(
 def build_checkbox_table_block(
     indicator_code: str,
     prompt: str,
+    subprompt: str | None,
     row_labels: list[str],
     column_labels: list[str] = None,
     column_descriptions: list[str] = None,
+    index_col_name: str = "",
     per_col_scores: list[float] = None,
     per_cell_scores: dict[tuple, float] = None,
     description_width: str = 'initial',
-    cell_width_px: int = 220
+    cell_width_px: int = 500,
+    first_col_width_px: int = 500
 ):
     """
     Render a table of checkboxes for a single indicator
@@ -839,11 +848,11 @@ def build_checkbox_table_block(
     # Defaults
     cols = list(column_labels)
     rows = list(row_labels)
+    old_rows = rows
     if per_cell_scores is not None:
         rows = [r for ri, r in enumerate(rows) if any([per_cell_scores.get((ri, ci), 0.0) > 0.0 for ci in range(len(cols))])]
-
-    # Heading/prompt
-    heading = w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")
+    # mapping from new row index to old index since per cell scores are based on old indexing
+    new_row_idx2old_idx = {rows.index(r): ri for ri, r in enumerate(old_rows) if r in rows}
 
     if column_descriptions is not None:
         desc_html_parts = []
@@ -854,9 +863,17 @@ def build_checkbox_table_block(
         desc_block.set_title(0, "Option descriptions")
         desc_block.selected_index = None  # collapsed by default
 
+    # Heading/prompt
+    heading_text = f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>"
+    if subprompt is not None:
+        if "</" in subprompt:
+            heading_text += subprompt
+        else:
+            heading_text += f"<h4>{subprompt}</h4>"
+    heading = w.HTML(heading_text)
 
     # Build header row
-    header_cells = [w.Label(value="Function", style={'description_width': description_width}, layout=w.Layout(width=f"{cell_width_px}px"))]
+    header_cells = [w.Label(value=index_col_name, style={'description_width': description_width}, layout=w.Layout(width=f"{first_col_width_px}px"))]
     header_cells += [w.Label(value=c, style={'description_width': description_width}, layout=w.Layout(width=f"{cell_width_px}px")) for c in cols]
     header_row = w.HBox(header_cells)
 
@@ -865,8 +882,7 @@ def build_checkbox_table_block(
     widgets_map: dict[str, dict[str, w.Checkbox]] = {}
 
     for r in rows:
-        # first cell shows the function name
-        row_heading = w.Label(value=r, style={'description_width': description_width}, layout=w.Layout(width=f"{cell_width_px}px"))
+        row_heading = w.Label(value=r, style={'description_width': description_width}, layout=w.Layout(width=f"{first_col_width_px}px"))
         cell_vboxes = []
         widgets_map[r] = {}
         for c in cols:
@@ -913,7 +929,7 @@ def build_checkbox_table_block(
             for ri, r in enumerate(rows):
                 for ci, c in enumerate(cols):
                     if widgets_map[r][c].value:
-                        total += float(per_cell_scores.get((ri, ci), 0.0))
+                        total += float(per_cell_scores.get((new_row_idx2old_idx[ri], ci), 0.0))
         elif per_col_scores:
             # Sum per selected column using per_col_scores
             if len(per_col_scores) != len(cols):
@@ -943,7 +959,7 @@ def build_checkbox_table_block(
 
     # Assemble UI
     if column_descriptions is not None:
-        ui = w.VBox([heading, header_row, desc_block] + table_rows + [summary_label])
+        ui = w.VBox([heading, desc_block, header_row] + table_rows + [summary_label])
     else:
         ui = w.VBox([heading, header_row] + table_rows + [summary_label])
 
@@ -968,6 +984,7 @@ def build_percentage_table_block(
     option_descriptions: List[str],
     option_weights: List[float],
     row_weights: Dict[str, float],
+    index_col_name: str = "",
     description_width: str = 'initial',
     cell_width_px: int = 180,
     step: float = 1,
@@ -1040,7 +1057,7 @@ def build_percentage_table_block(
 
     # --- Header row (Asset | Avg mass | Mass input | Options... | Row total) ---
     header_cells = [
-        w.Label(value="Asset", style={'description_width': description_width},
+        w.Label(value=index_col_name, style={'description_width': description_width},
                 layout=w.Layout(width=f"{cell_width_px}px")),
         w.Label(value="Mass (t, FY)", style={'description_width': description_width},
                 layout=w.Layout(width=f"{cell_width_px}px")),
