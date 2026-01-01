@@ -94,6 +94,51 @@ Overall_letter = to_letter_score(100*Overall_score)
 
 ---
 
+### `weighted_average(items)`
+
+Calculates a weighted average from a list of (value, weight) tuples.
+
+**Parameters:**
+- `items` (list[tuple[float, float]]): List of (value, weight) tuples
+
+**Returns:**
+- `float`: Weighted average, or 0.0 if total weight is 0
+
+**Formula:**
+```
+weighted_average = sum(value_i * weight_i) / sum(weight_i)
+```
+
+**Example:**
+```
+# From Circulytics_Score_Calculator.ipynb
+# Calculate enablers score
+Enablers_score = weighted_average([
+    (theme_scores[tm], ENABLER_THEME_WEIGHTS[tm]) 
+    for tm in [1,2,3,4,5]
+])
+
+# Example with specific values
+items = [(0.8, 0.3), (0.6, 0.5), (0.9, 0.2)]
+avg = weighted_average(items)  # Returns (0.8*0.3 + 0.6*0.5 + 0.9*0.2)/1.0 = 0.72
+
+# Calculate outcomes score with varying weights
+Outcomes_score = weighted_average([
+    (theme_scores[tm], outcomes_theme_weights[tm]) 
+    for tm in applicable_outcomes_themes
+])
+
+# Zero total weight
+items = [(0.5, 0.0), (0.7, 0.0)]
+avg = weighted_average(items)  # Returns 0.0
+
+# Single item
+items = [(0.85, 1.0)]
+avg = weighted_average(items)  # Returns 0.85
+```
+
+---
+
 ## Weighting Functions
 
 ### `compute_outcomes_theme_weights(company)`
