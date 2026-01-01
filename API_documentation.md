@@ -56,8 +56,6 @@ fraction = clip_0_to_1(0.75) # Returns 0.75
 ```
 
 ---
-### `weighted_average(items)`
----
 
 ### `to_letter_score(score)`
 
