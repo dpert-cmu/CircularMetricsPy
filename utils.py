@@ -1,7 +1,6 @@
-import math, json, numpy as np, pandas as pd
+import numpy as np, pandas as pd
 import ipywidgets as w
-from ipywidgets import interact_manual, FloatText, VBox, Output, Label
-from typing import List, Dict, Tuple, Optional
+from typing import List, Dict
 from params import *
 
 clip_0_to_100 = lambda x: max(0.0, min(100.0, float(x)))
@@ -31,6 +30,22 @@ def asset_row_widgets(label):
         'not_applicable': w.Checkbox(value=False, layout=w.Layout(width='150px')),
     }
 
+def weighted_average(items):
+    """
+    Calculate the weighted average of a list of (score, weight) pairs.
+    
+    Parameters
+    ----------
+    items (list[tuple[float, float]]): List of tuples where each tuple contains a score and its corresponding weight.
+
+    Returns
+    -------
+    float
+        The weighted average of the scores.
+    """
+    wsum = sum(w for _,w in items)
+    if wsum<=0: return 0.0
+    return sum(s*w for s,w in items)/wsum
 
 def compute_outcomes_theme_weights(company):
     weights = {6:0.0,7:0.0,8:0.0,9:0.0,10:0.0,11:0.0}
@@ -67,13 +82,6 @@ def compute_outcomes_theme_weights(company):
         else: weights[8]=0.15; weights[10]=0.15
         return weights
     raise AssertionError("Company must either be a financial institution, have material flows, or have services.")
-
-def score_linear_choice(idx, options):
-    if idx is None or idx < 1 or idx > len(options): return 0.0
-    return clip_0_to_100(options[idx-1])
-
-def score_sum_checks(percent_list):
-    return clip_0_to_100(sum(percent_list))
 
 def theme6_indicator_weights(company_info, masses, theme_indicator_widgets):
     if not company_info['material_flows']:
@@ -113,11 +121,6 @@ def theme10_indicator_weights(use_mwh, prod_mwh, is_producer):
     total = use_mwh + prod_mwh
     if total<=0: return {'10a':0.5,'10b':0.5}
     return {'10a':use_mwh/total,'10b':prod_mwh/total}
-
-def weighted_average(items):
-    wsum = sum(w for _,w in items)
-    if wsum<=0: return 0.0
-    return sum(s*w for s,w in items)/wsum
 
 def build_theme_8_indicator_ui():
     asset_widgets_procured = [asset_row_widgets(a) for a in ASSET_GROUPS]
@@ -254,9 +257,9 @@ def create_weighting_info_ui(company_info, applicable_outcomes_themes):
     other_fin_1 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
     other_fin_2 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
     other_fin_3 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    finance_weights = [lending, fixed_income, private_eq, listed_eq, other_fin_1, other_fin_2, other_fin_3]
+    finance_widgets = [lending, fixed_income, private_eq, listed_eq, other_fin_1, other_fin_2, other_fin_3]
     weighting_boxes[11] = w.VBox([theme_11_header, finance_weight_prompt,lending, fixed_income, private_eq, listed_eq, other_fin_1, other_fin_2, other_fin_3])
-    return weighting_boxes, M_in, M_prod1, M_prod2, M_waste1, M_waste2, water_demand, water_outflow, energy_use, energy_prod, asset_widgets_procured, asset_widgets_owned, finance_weights
+    return weighting_boxes, M_in, M_prod1, M_prod2, M_waste1, M_waste2, water_demand, water_outflow, energy_use, energy_prod, asset_widgets_procured, asset_widgets_owned, finance_widgets
 
 def create_indicator_ui(company_info, industry_type, finance_weights, asset_widgets_owned, asset_widgets_procured):
     # Build the UI interfaces to enter the indicators
@@ -297,7 +300,7 @@ def create_indicator_ui(company_info, industry_type, finance_weights, asset_widg
                 theme_items.append(container)
                 theme_indicator_widgets[theme_num][indicator] = widget
             elif info["type"] == "sliders":
-                if indicator == "6f":
+                if indicator == "6f_part1":
                     if "UP" in industry_type.value:
                         weights = info["weights_upstream"]
                     else:
@@ -319,10 +322,10 @@ def create_indicator_ui(company_info, industry_type, finance_weights, asset_widg
                 container, api = build_grouped_multiple_dropdown_block(
                     indicator,
                     info['prompt'],
-                    info['dropdown_descriptions'],
+                    info['column_descriptions'],
                     info['dropdown_options'],
                     info['dropdown_scores'],
-                    level_order=info.get('level_order', None),
+                    info['rows_label'],
                     description_width=info.get('description_width', 'initial'),
                     dropdown_width_px=info.get('cell_width_px', 360),
                     first_col_width_px=info.get('first_col_width_px', 500)
@@ -397,9 +400,28 @@ def create_indicator_ui(company_info, industry_type, finance_weights, asset_widg
     
 def build_dropdown_block(indicator_code: str, prompt: str, options: list[str], scores: list[float], subprompt: str | None = None, bonus_checkbox: dict | None = None) -> w.VBox:
     """
-    Render a theme item like Theme 1: prompt heading + explicit options + dropdown.
-    The dropdown stores a normalized 0..1 value by mapping the option index
-    against the number of options, consistent with Theme 1 style.
+    Render a UI box similar to indicators 1a, 1b, and 1c in which the user selects an option from a dropdown menu, with each option having a score
+    An option for an optional "bonus checkbox" that adds an additional bonus to the indicator score is also provided.
+
+    Parameters
+    ----------
+    indicator_code : str
+        The code of the indicator (e.g., '1a')
+    prompt : str
+        The main prompt/question for the indicator
+    options : list[str]
+        The list of options to display to the user
+    scores : list[float]
+        The corresponding scores for each option
+    subprompt : str | None, optional
+        An optional subprompt to display below the main prompt, by default None
+    bonus_checkbox : dict | None, optional
+        An optional dictionary defining a bonus checkbox with keys 'label' and 'bonus_score', by default None
+
+    Returns
+    -------
+    w.VBox
+        A VBox widget containing the dropdown and optional bonus checkbox
     """
     prompt_h3 = w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")
     prompts = [prompt_h3]
@@ -408,14 +430,11 @@ def build_dropdown_block(indicator_code: str, prompt: str, options: list[str], s
         prompts.append(subprompt_w)
     
     options_list = [w.Label(value=f"{i+1}: {opt}") for i, opt in enumerate(options)]
-    if len(options) > 1:
-        dropdown = w.Dropdown(
-            options=[(f"Option {i+1}", scores[i]) for i in range(len(options))],
-            description=f"Select Answer:",
-            style={'description_width': 'initial'}
-        )
-    else:
-        dropdown = w.Dropdown(options=[("Option 1", 1.0)], description=f"Select Answer:")
+    dropdown = w.Dropdown(
+        options=[(f"Option {i+1}", scores[i]) for i in range(len(options))],
+        description=f"Select Answer:",
+        style={'description_width': 'initial'}
+    )
     items_for_box = prompts + options_list + [dropdown]
     ui = {'dropdown': dropdown}
     if bonus_checkbox is not None:
@@ -426,8 +445,25 @@ def build_dropdown_block(indicator_code: str, prompt: str, options: list[str], s
 
 def build_checkbox_block(indicator_code: str, prompt: str, options: list[str], subprompt: str | None = None) -> w.VBox:
     """
-    Render prompt heading + checkboxes for 'select all that apply' pattern,
-    consistent with Theme 1 (e.g., 1e; 1d functions block).
+    Render a UI box for a 'select all that apply' pattern with checkboxes, similar to indicator 1e.
+
+    Parameters
+    ----------
+    indicator_code : str
+        The code of the indicator (e.g., '1e')
+    prompt : str
+        The main prompt/question for the indicator
+    options : list[str]
+        The list of checkbox options to display to the user
+    subprompt : str | None, optional
+        An optional subprompt to display below the main prompt, by default None
+    
+    Returns
+    -------
+    w.VBox
+        A VBox widget containing the heading and checkboxes
+    list[w.Checkbox]
+        A list of the Checkbox widgets created
     """
     # Heading/prompt
     heading_text = f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>"
@@ -442,7 +478,29 @@ def build_checkbox_block(indicator_code: str, prompt: str, options: list[str], s
 
 def build_grouped_checkbox_block(indicator_code: str, prompt: str, group_labels: list[str],group_sublabels: list[str], group_options: list[list[str]], subprompt: str | None = None) -> w.VBox:
     """
-    Render prompt heading + grouped checkboxes for 'select all that apply' pattern
+    Render a UI box for a set of checkboxes with a 'select all that apply' pattern divided into groups with headings, similar to indicator 7a part 2.
+
+    Parameters
+    ----------
+    indicator_code : str
+        The code of the indicator (e.g., '7a_part2')
+    prompt : str
+        The main prompt/question for the indicator
+    group_labels : list[str]
+        The list of group headings
+    group_sublabels : list[str]
+        The list of group sublabels/descriptions
+    group_options : list[list[str]]
+        The list of checkbox options for each group
+    subprompt : str | None, optional
+        An optional subprompt to display below the main prompt, by default None
+
+    Returns
+    -------
+    w.VBox
+        A VBox widget containing the heading and grouped checkboxes
+    list[list[w.Checkbox]]
+        A list of lists of Checkbox widgets created for each group
     """
     prompt_h3 = w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")
     prompts = [prompt_h3]
@@ -465,8 +523,31 @@ def build_grouped_checkbox_block(indicator_code: str, prompt: str, group_labels:
 
 def build_both_block(indicator_code: str, prompt: str, dropdown_options: list[str], dropdown_scores: list[float], checkbox_label: str, checkbox_options: list[str], subprompt: str | None = None) -> w.VBox:
     """
-    Render prompt heading + dropdown options + checkbox sublist,
-    matching Theme 1 'both' pattern (e.g., 1d).
+    Render a UI box for an indicator that includes both a dropdown and a set of checkboxes, similar to indicator 1d.
+
+    Parameters
+    ----------
+    indicator_code : str
+        The code of the indicator (e.g., '1d')
+    prompt : str
+        The main prompt/question for the indicator
+    dropdown_options : list[str]
+        The list of dropdown options to display to the user
+    dropdown_scores : list[float]
+        The corresponding scores for each dropdown option
+    checkbox_label : str
+        The label/question for the checkbox section
+    checkbox_options : list[str]
+        The list of checkbox options to display to the user
+    subprompt : str | None, optional
+        An optional subprompt to display below the main prompt, by default None
+
+    Returns
+    -------
+    w.VBox
+        A VBox widget containing the heading, dropdown, and checkboxes
+    tuple[w.Dropdown, list[w.Checkbox]]
+        A tuple containing the Dropdown widget and a list of Checkbox widgets created
     """
     prompt_h3 = w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")
     prompts = [prompt_h3]
@@ -483,28 +564,29 @@ def build_both_block(indicator_code: str, prompt: str, dropdown_options: list[st
     cbs = [w.Checkbox(value=False, description=opt, indent=False, style={'description_width': 'initial'}) for opt in checkbox_options]
     return w.VBox(prompts + dd_opts_visible + [dropdown, cb_prompt] + cbs), (dropdown, cbs)
 
-def build_info_input_block(title_h3: str, sublabel: str, widget: w.Widget) -> w.VBox:
-    """
-    Wrap any single numeric or text input with a Theme-1-like heading and sublabel.
-    Use for themes 6..11 'Information for weighting' entries to keep visual consistency.
-    """
-    h3 = w.HTML(f"<h3>{title_h3}</h3>")
-    sub = w.Label(value=sublabel)
-    return w.VBox([h3, sub, widget])
-
 def build_slider_block(indicator_code: str, prompt: str, min_val: float = 0, max_val: float = 1, step: float = 0.01, subprompt: str | None = None) -> w.VBox:
     """
-    Creates a UI block for a single slider input with a heading and description.
+    Create a UI box for a single FloatSlider input with a heading and description.
     
-    Parameters:
-    - indicator_code: str, e.g., "6b" or "10a"
-    - prompt: str, descriptive text for the indicator
-    - min_val: float, minimum slider value (default 0)
-    - max_val: float, maximum slider value (default 1)
-    - step: float, step size for slider (default 0.01)
+    Parameters
+    ----------
+    indicator_code : str
+        The code of the indicator (e.g., "6b" or "10a")
+    prompt : str
+        Descriptive text for the indicator
+    min_val : float, optional
+        Minimum slider value (default 0)
+    max_val : float, optional
+        Maximum slider value (default 1)
+    step : float, optional
+        Step size for slider (default 0.01)
     
-    Returns:
-    - ipywidgets.VBox containing the heading and slider widget
+    Returns
+    -------
+    w.VBox
+        A VBox widget containing the heading and slider widget
+    w.FloatSlider
+        The FloatSlider widget created
     """
     heading = [w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")]
     if subprompt is not None:
@@ -525,61 +607,61 @@ def build_slider_block(indicator_code: str, prompt: str, min_val: float = 0, max
 def build_composite_slider_block(
     indicator_code: str,
     prompt: str,
-    items: list,
-    *,
+    items: list[dict],
     min_val: float = 0.0,
     max_val: float = 1.0,
     step: float = 0.01,
     show_total: bool = True,
-    total_label: str = "Total (%)",
     weights: list[float] | None = None,
-    weighted_total_label: str = "Weighted total",
-    cap_total_at: float | None = 1.0,
+    cap_total_at: float = 1.0,
     subprompt: str | None = None
 ):
     """
-    Create a UI block with multiple labeled sliders under one indicator, plus an optional total readout.
+    Create a UI box for a single indicator with multiple FloatSlider inputs with different weights, plus an optional label for the total score.
 
     Parameters
     ----------
     indicator_code : str
-        Code like "6a" or "6f".
+        The code of the indicator
     prompt : str
-        Heading/description shown above the sliders.
-    items : list
-        List of dicts: [{"label": "Reuse/redistribution"}, {"label": "Refurbishment/remanufacture"}, ...]
+        Descriptive text for the indicator
+    items : list[dict]
+        List of dicts for the different sliders: [{"label": "Reuse/redistribution"}, {"label": "Refurbishment/remanufacture"}, ...]
         Optional per-item overrides:
             {"label": "...", "min": 0, "max": 1, "step": 0.01, "value": 0}
     min_val, max_val, step : float
         Default slider bounds/step applied when item-level overrides are not provided.
     show_total : bool
-        Whether to show a dynamic total below the sliders (sum or weighted sum).
-    total_label : str
-        Label for the unweighted sum.
+        Whether to show a dynamic total score below the sliders.
     weights : list[float] | None
-        If provided, must match len(items); used to compute a weighted total.
-    weighted_total_label : str
-        Label for weighted total readout (only shown if `weights` is supplied).
-    cap_total_at : float | None
-        If set (e.g., 1), the total display will show "capped" at this threshold (for visual guidance).
-        Actual slider values are not changed—this is display-only.
+        Weights for each slider value used to compute the weighted total. If provided, must match len(items); otherwise, equal weights are used for each slider that add up to 1.
+    cap_total_at : float, default 1.0
+        Maximum total score
+    subprompt : str | None, optional
+        An optional subprompt to display below the main prompt
 
     Returns
     -------
     ui : ipywidgets.VBox
-        The composite block widget (heading + sliders + total readouts).
+        The composite block widget (heading + sliders + total score label).
     api : dict
-        Helper functions/handles:
+        Helper functions and data:
             - "get_values" -> callable returning a dict {label: value}
-            - "get_weighted_score" -> callable returning weighted sum (or unweighted sum if no weights)
+            - "get_weighted_score" -> callable returning weighted score
             - "sliders" -> list of slider widgets (each w.FloatSlider)
-            - "weights" -> weights list (or None)
+            - "weights" -> weights list
             - "labels" -> list of item labels
     """
+    if weights is None:
+        weights = [1.0/len(items)] * len(items)
+
     # Heading
     heading = [w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")]
     if subprompt is not None:
-        subprompt_w = w.Label(value=subprompt)
+        if "</" in subprompt:
+            subprompt_w = w.HTML(subprompt)
+        else:
+            subprompt_w = w.Label(value=subprompt)
         heading.append(subprompt_w)
 
     # Build sliders
@@ -612,29 +694,32 @@ def build_composite_slider_block(
         slider_widget_containers.append(w.VBox(slider_widget_container_items))
         slider_widgets.append(slider)
 
-    # Total readouts (if enabled)
-    weighted_row = w.HBox([])
-    score_label = w.Label(value="")
+    # Total score label (if enabled)
+    score_label = w.Label(value="Total score: 0.00%")
 
     def get_weighted_score():
         vals = [s.value for s in slider_widgets]
-        if weights is None:
-            return max(0, min(1, sum(vals)))
-        return max(0, min(1, sum(wt * val for wt, val in zip(weights, vals))))
+        return max(0, min(cap_total_at, sum(wt * val for wt, val in zip(weights, vals))))
 
     def recompute_totals(*_):
         score = get_weighted_score()
-        total_text = f"{total_label}: {score:.0%}"
-        score_label.value = total_text
+        total_text = f"Total score: {score:.2%}"
+        return total_text
 
     # Container assembly
-    block = w.VBox(heading + slider_widget_containers + ([weighted_row] if show_total else []))
+    block = w.VBox(heading + slider_widget_containers + ([score_label] if show_total else []))
 
     # API helpers
     def get_values():
         return {lbl: s.value for lbl, s in zip(labels, slider_widgets)}
 
-    
+    # --- Live update
+    def _on_change(_):
+        score_label.value = recompute_totals()
+
+    for sw in slider_widgets:
+        sw.observe(_on_change, names="value")
+    _on_change(None)
 
     api = {
         "get_values": get_values,
@@ -649,18 +734,17 @@ def build_composite_slider_block(
 def build_grouped_multiple_dropdown_block(
     indicator_code: str,
     prompt: str,
-    dropdown_descriptions: list[str],
+    column_descriptions: list[str],
     dropdown_options: list[str],
     dropdown_scores: dict[str, dict[str, list[float]]],
-    *,
-    level_order: list[str] | None = None,
+    rows_label: str = "Row",
     description_width: str = 'initial',
     dropdown_width_px: int = 500,
     first_col_width_px: int = 200
 ):
     """
-    Build a multi-dropdown UI where dropdowns are grouped into rows by 'level',
-    and each dropdown shows its description label above the control.
+    Build a multi-dropdown UI where dropdowns are grouped into rows and columns, forming a tablular layout.
+    For example, indicator 3b, where each row is a seniority level in the company, each column is a training level, and each dropdown option relates to what extent training is offered at that level.
 
     Parameters
     ----------
@@ -668,38 +752,43 @@ def build_grouped_multiple_dropdown_block(
         e.g., "3b"
     prompt : str
         Heading text for the whole block.
-    dropdown_descriptions : list[str]
-        [training_1_label, training_2_label, training_3_label, ...]
+    column_descriptions : list[str]
+        Descriptions of the different columns, e.g.
+        [column_1_label, column_2_label, column_3_label, ...]
     dropdown_options : list[str]
+        Descriptions of the dropdown options, e.g.
         [option_1, option_2, option_3, ...]
     dropdown_scores : dict[str, dict[str, list[float]]]
-        { level: { training_label: [score_for_option_1, score_for_option_2, ...], ... }, ... }
-        Scores should be floats 0..1 aligned with dropdown_options.
-    level_order : list[str] | None
-        If provided, defines the row ordering of levels; otherwise uses dict insertion order.
+        Scores for the dropdown options, grouped by row and column, e.g.
+        { row: { column: [score_for_option_1, score_for_option_2, ...], ... }, ... }
+        Scores should be floats 0..1 in the same order as dropdown_options.
+    rows_label : str
+        Label for the first column (row headings).
     description_width : str
         ipywidgets style for aligning label text.
     dropdown_width_px : int
         Width of each dropdown widget in pixels.
+    first_col_width_px : int
+        Width of the first column (row labels) in pixels.
 
     Returns
     -------
     ui : ipywidgets.VBox
         The composite UI block: heading + rows.
     api : dict
-        - "get_selections" -> dict[level] -> dict[training] -> selected option index (int or None)
-        - "get_scores"     -> dict[level] -> dict[training] -> selected score (float 0..1)
-        - "get_total_score"-> float overall average (0..1 scaled)
-        - "widgets"        -> dict[level] -> dict[training] -> dropdown widget
-        - "levels"         -> list of levels in display order
-        - "trainings"      -> dict[level] -> list of trainings
+        - "get_selections" -> dict[row] -> dict[column] -> selected option index (int or None)
+        - "get_scores"     -> dict[row] -> dict[column] -> selected score (float 0..1)
+        - "get_total_score"-> float total score (0..1)
+        - "widgets"        -> dict[row] -> dict[column] -> dropdown widget
+        - "rows"           -> list of rows in display order
+        - "columns"        -> dict[row] -> list of columns
     """
     # --- Heading
     heading = w.HTML(f"<h3>{indicator_code.split('_')[0]}. {prompt}</h3>")
 
     desc_html_parts = []
-    labels = [f"Option {i+1}" for i in range(len(dropdown_descriptions))]
-    for j, (label, desc) in enumerate(zip(labels, dropdown_descriptions), start=1):
+    labels = [f"Option {i+1}" for i in range(len(column_descriptions))]
+    for j, (label, desc) in enumerate(zip(labels, column_descriptions), start=1):
         desc_html_parts.append(f"<p><b>{label}</b>: {desc}</p>")
     desc_html = "<div>" + "\n".join(desc_html_parts) + "</div>"
     desc_block = w.Accordion(children=[w.HTML(value=desc_html)])
@@ -707,21 +796,21 @@ def build_grouped_multiple_dropdown_block(
     desc_block.selected_index = None  # collapsed by default
 
     # --- Determine level order
-    levels = level_order if level_order else list(dropdown_scores.keys())
+    rows = dropdown_scores.keys()
 
     # --- Column names
-    column_names = w.HBox([w.Label(value="Seniority level",style={'description_width': description_width}, layout=w.Layout(width=f"{first_col_width_px}px"))]+[ w.Label(value=d,style={'description_width': description_width}, layout=w.Layout(width=f"{dropdown_width_px}px")) for d in labels])
+    column_names = w.HBox([w.Label(value=rows_label,style={'description_width': description_width}, layout=w.Layout(width=f"{first_col_width_px}px"))]+[ w.Label(value=d,style={'description_width': description_width}, layout=w.Layout(width=f"{dropdown_width_px}px")) for d in labels])
 
     # --- Build rows per level
     level_rows = [column_names]                      # list of HBox rows
     widgets_map: dict[str, dict[str, w.Dropdown]] = {}
 
-    for lvl in levels:
+    for lvl in rows:
         # One dropdown per training; label above dropdown
         col_boxes = []
         widgets_map[lvl] = {}
 
-        for t_label in dropdown_descriptions:
+        for t_label in column_descriptions:
             # Pair options as (label, index) to keep index mapping explicit
             dd_options = [(opt, idx) for idx, opt in enumerate(dropdown_options)]
             dd = w.Dropdown(
@@ -743,19 +832,19 @@ def build_grouped_multiple_dropdown_block(
 
     # --- Scoring helpers
     def get_selections():
-        # {level: {training: selected_index (int or None)}}
+        # {row: {column: selected_index (int or None)}}
         sel = {}
-        for lvl in levels:
+        for lvl in rows:
             sel[lvl] = {}
             for t_label, dd in widgets_map[lvl].items():
                 sel[lvl][t_label] = dd.value
         return sel
 
     def get_scores():
-        # {level: {training: score (float 0..1)}}
+        # {row: {column: score (float 0..1)}}
         out = {}
         selections = get_selections()
-        for lvl in levels:
+        for lvl in rows:
             out[lvl] = {}
             for t_label, sel_idx in selections[lvl].items():
                 score_list = dropdown_scores[lvl][t_label]
@@ -767,9 +856,8 @@ def build_grouped_multiple_dropdown_block(
         return out
 
     def get_total_score():
-        # Flatten all scores and average; scale to % (0..1)
         s_map = get_scores()
-        level_scores = [max([s_map[lvl][t_label] for t_label in dropdown_descriptions]) for lvl in levels]
+        level_scores = [max([s_map[lvl][t_label] for t_label in column_descriptions]) for lvl in rows]
         if not level_scores:
             return 0.0
         return np.mean(level_scores)
@@ -778,7 +866,7 @@ def build_grouped_multiple_dropdown_block(
     def _on_change(_):
         summary_label.value = f"Score: {get_total_score():.2%}"
 
-    for lvl in levels:
+    for lvl in rows:
         for dd in widgets_map[lvl].values():
             dd.observe(_on_change, names="value")
     _on_change(None)
@@ -791,7 +879,7 @@ def build_grouped_multiple_dropdown_block(
         "get_scores": get_scores,
         "get_total_score": get_total_score,
         "widgets": widgets_map,
-        "levels": levels,
+        "levels": rows,
        }
     return ui, api
 
@@ -811,7 +899,7 @@ def build_checkbox_table_block(
     first_col_width_px: int = 500
 ):
     """
-    Render a table of checkboxes for a single indicator
+    Render a table of checkboxes for a single indicator, e.g. indicator 3c
 
     Parameters
     ----------
@@ -824,7 +912,7 @@ def build_checkbox_table_block(
     column_labels : list[str]
         list of column names
     per_col_scores : list[float]
-        score per column per checkbox in that column selected
+        score per checkbox in each column
     per_cell_scores : dict[(row_idx, col_idx) -> float]
         Optional fine-grained scores per cell (if you want different columns to contribute differently).
         If provided, this overrides per_col_scores for those cells.
@@ -832,6 +920,8 @@ def build_checkbox_table_block(
         ipywidgets label layout style; 'initial' keeps full label text visible.
     cell_width_px : int
         Width of each checkbox cell (VBox) in pixels.
+    first_col_width_px : int
+        Width of the first column (row labels) in pixels.
 
     Returns
     -------
@@ -839,8 +929,8 @@ def build_checkbox_table_block(
         Composite UI (heading + table + summary).
     api : dict
         - "get_matrix" -> returns dict[row_label] -> dict[column_label] -> bool (checked)
-        - "get_row_counts" -> returns dict[row_label] -> int (checked in that row)
-        - "get_score" -> returns float % score (0..1); uses per_row_scores or per_cell_scores
+        - "get_row_counts" -> returns dict[row_label] -> int (number of boxes checked in that row)
+        - "get_score" -> returns overall score
         - "widgets" -> dict[row_label] -> dict[column_label] -> w.Checkbox
         - "rows" -> list of row labels
         - "cols" -> list of column labels
@@ -849,6 +939,9 @@ def build_checkbox_table_block(
     cols = list(column_labels)
     rows = list(row_labels)
     old_rows = rows
+    if per_col_scores is None and per_cell_scores is None:
+        per_col_scores = [1.0 / len(cols)] * len(cols)  # equal weights
+    # only include rows with non-zero per_cell_scores if provided
     if per_cell_scores is not None:
         rows = [r for ri, r in enumerate(rows) if any([per_cell_scores.get((ri, ci), 0.0) > 0.0 for ci in range(len(cols))])]
     # mapping from new row index to old index since per cell scores are based on old indexing
@@ -992,7 +1085,7 @@ def build_percentage_table_block(
     asset_widgets_procured= None
 ):
     """
-    Render a table of percentage inputs for Indicator 8a with per-asset mass weighting.
+    Render a table of percentage inputs (BoundedFloatText) e.g. for Indicator 8a with per-asset mass weighting.
 
     Parameters
     ----------
@@ -1005,34 +1098,48 @@ def build_percentage_table_block(
     column_labels : list[str]
         Short column labels (e.g., ["Option 1", "Option 2", ...]).
     option_descriptions : list[str]
-        Long-form descriptions corresponding to each column (shown above the table).
+        Longer descriptions corresponding to each column (shown above the table).
     option_weights : list[float]
         Per-column score weights (e.g., [1.0, 1.0, 0.5, 0.5, 0.0]).
     row_weights: Dict[str, float]
-        Per-row weights based on asset mass share (e.g., {"IT equipment": 0.2, "Textiles": 0.3, "Furniture": 0.5}).
+        Per-row weights, e.g. based on asset mass share (e.g., {"IT equipment": 0.2, "Textiles": 0.3, "Furniture": 0.5}).
     description_width : str
         ipywidgets label style; 'initial' keeps full label text visible.
     cell_width_px : int
         Width of each input cell (VBox) in pixels.
-    percent_step : float
-        Step for percentage input fields, in percent units (e.g., 1.0 -> 1% increments).
+    step : float
+        Step for percentage input fields, in percent units (e.g., 1.0 -> 1% increment).
     enforce_row_total_100 : bool
-        If True, summary will flag rows whose % total != 100%.
+        If True, summary will flag rows whose percent total is not 100%.
+    asset_widgets_procured : list[dict] | None
+        List of asset widget information with following format:
+        {
+        'name' (str): asset category name,
+        'mass_widget' (w.BoundedFloatText): widget with mass of asset category,
+        'mass_box' (w.HBox): UI box for entry of mass,
+        'applicable_and_mass_not_available' (w.Checkbox): widget for whether the "Applicable and mass not available" option is selected,
+        'not_applicable' (w.Checkbox): widget for whether the "not applicable" option is selected
+    }
 
     Returns
     -------
     ui : ipywidgets.VBox
         Composite UI (descriptions + heading + table + summary).
     api : dict
-        - "get_matrix" -> dict[row_label] -> dict[column_label] -> float (0..1 as fraction)
-        - "get_row_totals" -> dict[row_label] -> float (0..1)
-        - "get_mass_inputs" -> dict[row_label] -> float (tonnes)
-        - "get_weights" -> dict[row_label] -> float (asset mass share 0..1)
-        - "get_asset_scores" -> dict[row_label] -> float (0..1)
-        - "get_overall_score" -> float (0..1)
-        - "widgets" -> dict with references to all widgets
-        - "rows" / "cols"
+        - "get_matrix" -> dict[row_label][column_label] -> float (value 0..1 as fraction) per-item scores
+        - "get_row_totals" -> dict[row_label] -> float (0..1) sum of values for each row
+        - "get_row_scores" -> dict[row_label] -> float (0..1) weighted score for each row
+        - "get_overall_score" -> float (0..1) weighted sum of row scores (overall indicator score)
+        - "widgets" -> dict with references to all widgets, with the following structure:
+            - "percent_inputs" -> dict[row_label][column_label] -> w.BoundedFloatText
+            - "row_total_labels" -> dict[row_label] -> w.HTML
+            - "summary_html" -> w.HTML
+            - "warnings_html" -> w.HTML
+            - "desc_block" -> w.Accordion (column descriptions)
+        - "rows" -> list of rows
+        - "cols" -> list of columns
     """
+
     # --- Validation of inputs ---
     if len(column_labels) != len(option_descriptions):
         raise ValueError("column_labels length must match option_descriptions length.")
@@ -1137,7 +1244,7 @@ def build_percentage_table_block(
 
     def get_row_totals() -> Dict[str, float]:
         """
-        Sum of percent fractions across columns for each row.
+        Sum of percent fractions for each item in the row.
         dict[row] -> float in [0,1]
         """
         m = get_matrix()
@@ -1146,9 +1253,10 @@ def build_percentage_table_block(
             totals[r] = sum(m[r][c] for c in cols)
         return totals
 
-    def get_asset_scores() -> Dict[str, float]:
+    def get_row_scores() -> Dict[str, float]:
         """
-        Per-asset approach score = sum_j (%_fraction[r][j] * option_weights[j])  in [0,1]
+        Per-row score = weighted sum of values for each item in the row
+        dict[row] -> float in [0,1]
         """
         m = get_matrix()
         scores = {}
@@ -1161,9 +1269,9 @@ def build_percentage_table_block(
 
     def get_overall_score() -> float:
         """
-        Overall weighted score = sum_i (asset_weight[i] * asset_score[i]) in [0,1]
+        Overall weighted score = weighted sum of row scores
         """
-        scores = get_asset_scores()
+        scores = get_row_scores()
         return sum(row_weights[r] * scores[r] for r in rows)
 
     # --- Live updates ---
@@ -1208,7 +1316,7 @@ def build_percentage_table_block(
     api = {
         "get_matrix": get_matrix,
         "get_row_totals": get_row_totals,
-        "get_asset_scores": get_asset_scores,
+        "get_row_scores": get_row_scores,
         "get_overall_score": get_overall_score,
         "widgets": {
             "percent_inputs": widgets_map,

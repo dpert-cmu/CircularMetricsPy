@@ -302,13 +302,14 @@ theme_3_indicators = {
     },
     "3b": {
         "prompt": "To what extent does your company offer circular economy related training within your company?",
-        "dropdown_descriptions": ['General training on circular economy principles and concepts','Training on circular economy specific to your industry or business function','Formal on the job training (mentorships, trainee programmes, apprenticeships) on circular economy'],
+        "column_descriptions": ['General training on circular economy principles and concepts','Training on circular economy specific to your industry or business function','Formal on the job training (mentorships, trainee programmes, apprenticeships) on circular economy'],
         "dropdown_options": ["Not offered to all", "Offered to all", "Mandatory for all"],
         "dropdown_scores": {level: {'General training on circular economy principles and concepts': [0.0,0.25,0.5],
                                     'Training on circular economy specific to your industry or business function': [0.0,0.50,1.0],
                                     'Formal on the job training (mentorships, trainee programmes, apprenticeships) on circular economy': [0.0,0.50,1.0]
                                     } for level in ["Directors and above","Managers","Employees"]},
         "type": "multiple_dropdown",
+        "rows_label": "Seniority Level",
         "cell_width_px": 200,
         'first_col_width_px': 200
     },
@@ -496,14 +497,26 @@ theme_6_indicators = {
     },
     "6f_part1": {
         "prompt": "What % (by mass) of your products and materials (M_PROD2 from 0n. Part 2) are recirculated in practice in the following ways (only counting the first cycle of recirculation after initial use):",
+        "subprompt": """
+<p>*Qualifying conditions for nutrient recirculation methods:</p>
+<ol>
+<li>Other end-of-use options for the material, besides landfill and incineration, have been investigated and found to be not feasible on technical or economic grounds</li>
+<li>The material is from a biological source</li>
+<li>The material does not cause harm to human health or the environment during or after use and is completely uncontaminated by materials that may cause harm to human health or the environment during or after use (including coatings, preservatives, and fillers, except when these are demonstrably inert and non-toxic, and other materials of biological origin which do not adhere to these qualifying conditions)</li>
+<li>If energy generation is involved in this process, it should be usefully employed</li>
+<li>The products of the process are themselves 100% biologically beneficial (e.g. as a soil conditioner), and are not detrimental to the ecosystems to which they are introduced</li>
+</ol>
+""",
         "items": [
             {"label": "Reuse/redistribution", "type": "slider"},
             {"label": "Refurbishment/remanufacture", "type": "slider"},
             {"label": "Recycling", "type": "slider"},
-            {"label": "Qualifying nutrient recirculation", "type": "slider"}
+            {"label": "Qualifying nutrient recirculation", "type": "slider"},
+            {"label": "None of the above (e.g. landfill, incineration, unintentional loss, any nutrient recirculation that does not meet the qualifying conditions*)", "type": "slider"},
+            {"label": "Data not available", "type": "slider"},
         ],
-        "weights_upstream": {"reuse": 1.0, "refurb": 1.0, "recycle": 1.0, "nutr": 1.0},
-        "weights_other":   {"reuse": 1.0, "refurb": 0.8, "recycle": 0.4, "nutr": 0.4},
+        "weights_upstream": [1.0, 1.0, 1.0, 1.0, 0.0, 0.0],
+        "weights_other": [1.0, 0.8, 0.4, 0.4, 0.0, 0.0],
         "type": "sliders",
     },
     "6f_part2": {
@@ -602,6 +615,7 @@ theme_8_indicators = {
             "Second-hand assets",
             "New assets designed with circular design approaches both during use and end of functional life aspects covered, as defined below",
             """
+            <p>Only during-use (enter the % of assets procured with at least one of the following design approaches):</p>
             <ul>
             <li>Longevity: Designed for maintenance, longevity, durability in such a way that encourages lengthy use in practice and at scale (e.g. designed for repair rather than replacement, timeless design with durable material choices) AND in such a way that does not compromise circular treatment and end of functional life</li>
             <li>Reusability: Designed for multiple uses in such a way that ensures actual reuse in practice and at scale (e.g. secondary markets, packaging reuse systems, standardised design)</li>
@@ -611,6 +625,7 @@ theme_8_indicators = {
             </ul>
             """,
             """
+            <p>Only end of functional life (enter the % of assets procured with at least one of the following design approaches):</p>
             <ul>
             <li>Leasing model (e.g. assets can be returned at end of use)</li>
             <li>Design for disassembly (e.g. Product-component passports, modular design, reversible connections)</li>
