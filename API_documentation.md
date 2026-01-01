@@ -1,14 +1,11 @@
-# Utils.py API Documentation
-
-This document provides comprehensive API documentation for all functions in `utils.py`, the utility library for the Circulytics Score Calculator.
+# API Documentation
 
 ## Table of Contents
 
 1. [Utility Functions](#utility-functions)
-2. [Scoring Functions](#scoring-functions)
-3. [Weighting Functions](#weighting-functions)
-4. [UI Building Functions](#ui-building-functions)
-5. [Widget Creation Functions](#widget-creation-functions)
+2. [Weighting Functions](#weighting-functions)
+3. [UI Building Functions](#ui-building-functions)
+4. [Widget Creation Functions](#widget-creation-functions)
 
 ---
 
