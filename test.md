@@ -1,0 +1,46 @@
+# Circulytics test case
+
+Enter the following information in the Circulytics calculator:
+
+### Basic company information
+<img width="900" height="619" alt="image" src="https://github.com/user-attachments/assets/dbd4e114-b40b-459b-b3bb-639dd723f4a6" />
+
+### Company Characteristics
+<img width="1961" height="631" alt="image" src="https://github.com/user-attachments/assets/003552ba-fb2e-4ea5-9c3b-5014ec6a449e" />
+Based on the company characteristics, themes 6, 7, 8, 9, and 10 apply, with weights of 65%, 5%, 10%, 10%, and 10%.             
+### Information for weighting
+<img width="2319" height="901" alt="image" src="https://github.com/user-attachments/assets/f80be14c-9e8b-4391-bc1c-0995b1660f28" />
+<img width="3029" height="1403" alt="image" src="https://github.com/user-attachments/assets/2d65e1ae-830f-4c1f-ba8c-58479f88cc5f" />
+- The total mass procured in the FY is 32 tonnes and total mass procured in prior FYs is 21 tonnes, so indicator 8a is given a weight of 32/53 and indicator 8b a weight of 21/53.
+- Within indicator 8a, furniture is given a weight of 1/4 since the mass is not available, while textiles, buildings, and heavy machinery are given weights of (2/32)*3/4=0.047, (10/32)*3/4=0.234, and (20/32)*3/4=0.469
+- Within indicator 8b, IT equipment is given a weight of 1/4 since the mass is not available, while textiles, buildings, and heavy machinery are given weights of (1/21)*3/4=0.036, (10/21)*3/4=0.357, and (10/21)*3/4=0.357
+- <img width="3178" height="1479" alt="image" src="https://github.com/user-attachments/assets/a439143a-5a43-4f89-89f8-b65a1b9474d6" />
+
+<img width="1746" height="656" alt="image" src="https://github.com/user-attachments/assets/ab63dd63-c22c-44ff-a6bc-3452db19886d" />
+### Information for Circulytics Indicators
+<img width="2026" height="1013" alt="image" src="https://github.com/user-attachments/assets/d4b74f42-f259-4573-8b3c-086f51f3da96" />
+<img width="1756" height="1409" alt="image" src="https://github.com/user-attachments/assets/00089392-89e3-4a4c-9e77-b3070736fa16" />
+For theme 1, indicators a, b, c, d, e, and f have scores of 0.33, 0.33, 1, 1, 0.5, and 0. The overall score for theme 1 is 
+<img width="2918" height="1561" alt="image" src="https://github.com/user-attachments/assets/8b693077-2095-424a-a140-765d5a3c5cfc" />
+<img width="1935" height="1316" alt="image" src="https://github.com/user-attachments/assets/cc463800-a7f5-4ad4-a72b-8b628e7a0113" />
+<img width="3100" height="897" alt="image" src="https://github.com/user-attachments/assets/607f5028-8611-407b-b31c-2597d166df2a" />
+
+For theme 2, each indicator has a score of 0.33, 0.67, 0.33, 0.33, 0.0, 0.67, 0.33, and 1
+<img width="2213" height="1179" alt="image" src="https://github.com/user-attachments/assets/a8f61279-48ff-4094-b023-dd4e48ae8423" />
+<img width="1590" height="1484" alt="image" src="https://github.com/user-attachments/assets/31bb8bb9-fce8-4be4-a143-c711c3b341c7" />
+
+For theme 3, the two parts of indicator 3a have scores of 1 and 0.33. For indicator 3b, "Director and above", "Manager", and "Employee" have scores of 1, 0.5, and 0.25, since the highest score from each type of training is used. The overall score for indicator 3b is the average of these three (0.583). Indicator 3c has a score of 0.9. The overall score for theme 9 is 
+<img width="2945" height="1309" alt="image" src="https://github.com/user-attachments/assets/1dfcae61-6d70-4a04-bd94-6a9fed8e5395" />
+
+Both indicators for theme 4 have a score of 1.0, for a theme score of 1.0
+<img width="2661" height="1212" alt="image" src="https://github.com/user-attachments/assets/efcc2699-9901-419f-83a1-5cf64c484fbe" />
+<img width="2164" height="876" alt="image" src="https://github.com/user-attachments/assets/991bad7b-0e29-4c87-b79a-e862664ffe83" />
+<img width="1741" height="1170" alt="image" src="https://github.com/user-attachments/assets/20692df3-932f-4984-8918-d24b65ee2375" />
+
+For theme 5, indicators 5a, 5b, 5c, and 5d have scores of 1, 1, 0.33, 0.67, and 1
+<img width="2809" height="1626" alt="image" src="https://github.com/user-attachments/assets/d102844d-f144-4f82-aa3a-b0cfdc3058ad" />
+
+For indicator 6a, the score is the 0.25*1 + 0.25 * 0.5 + 0.25 * 0.8 + 0.25 * 0 = 0.575
+<img width="3089" height="1610" alt="image" src="https://github.com/user-attachments/assets/447741e3-124b-4f8c-9043-276073f63d61" />
+
+Indicators 6b and 6c have scores of 0.4 and 0.6 since a higher percentage corresponds with a lower score, while indicator 6d has a score of 0.6 and indicator 6e has a score of 1, even though the sum of the weights of the checked boxes is 2.
