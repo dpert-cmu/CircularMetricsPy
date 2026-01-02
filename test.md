@@ -1,4 +1,4 @@
-# Circulytics test case
+# Circulytics calculator test case
 
 Enter the following information in the Circulytics calculator:
 
@@ -21,10 +21,10 @@ Enter the following information in the Circulytics calculator:
 
 <img width="1973" height="748" alt="image" src="https://github.com/user-attachments/assets/820e9d52-bb5b-4852-979d-b82357cc021c" />
 
-
 ### Information for Circulytics Indicators
 <img width="2026" height="1013" alt="image" src="https://github.com/user-attachments/assets/d4b74f42-f259-4573-8b3c-086f51f3da96" />
 <img width="1756" height="1409" alt="image" src="https://github.com/user-attachments/assets/00089392-89e3-4a4c-9e77-b3070736fa16" />
+
 - For theme 1, indicators a, b, c, d, e, and f have scores of 0.33, 0.33, 1, 1, 0.5, and 0. The overall score for theme 1 is 0.527
 <img width="2918" height="1561" alt="image" src="https://github.com/user-attachments/assets/8b693077-2095-424a-a140-765d5a3c5cfc" />
 <img width="1935" height="1316" alt="image" src="https://github.com/user-attachments/assets/cc463800-a7f5-4ad4-a72b-8b628e7a0113" />
@@ -49,13 +49,15 @@ Enter the following information in the Circulytics calculator:
 <img width="3089" height="1610" alt="image" src="https://github.com/user-attachments/assets/447741e3-124b-4f8c-9043-276073f63d61" />
 
 - Indicators 6b and 6c have scores of 0.4 and 0.6 since a higher percentage corresponds with a lower score, while indicator 6d has a score of 0.6 and indicator 6e has a score of 1, even though the sum of the weights of the checked boxes is 2.
-- <img width="3145" height="1629" alt="image" src="https://github.com/user-attachments/assets/94d87716-426f-460e-be35-6fceabaee080" />
+<img width="3145" height="1629" alt="image" src="https://github.com/user-attachments/assets/94d87716-426f-460e-be35-6fceabaee080" />
 
-- 25% of product mass designed to be used is recirculated through reuse while 25% is recycled and 50% is not recirculated. Since the company is not an upstream industry, thier score for indicator 6f part 1 is 0.25*1 + 0.25*0.4 = 0.35. The score for indicator 6f part 2 is 2.
+- 25% of product mass designed to be used is recirculated through reuse while 25% is recycled and 50% is not recirculated. Since the company is not an upstream industry, thier score for indicator 6f part 1 is 0.25*(1) + 0.25*(0.4) = 0.35. The score for indicator 6f part 2 is 2.
 - Using the weights for each indicator, which are based on the values of M_IN, M_PROD1, M_PROD2, M_WASTE1, M_WASTE2, and the fraction of M_PROD2 recirculated through reuse (25%), the theme 6 score is 0.720 (see Test case spreadsheet).
-<img width="1173" height="1144" alt="image" src="https://github.com/user-attachments/assets/2464a131-ca4c-4002-8b8a-b38b1b19bddf" />
+<img width="600"  alt="image" src="https://github.com/user-attachments/assets/2464a131-ca4c-4002-8b8a-b38b1b19bddf" />
+
 - The score for theme 7 is equal to the score for indicator 7a (0.5) since 50% of service revenue is from circular services.
 <img width="2946" height="1387" alt="image" src="https://github.com/user-attachments/assets/3079f124-ca73-40c9-befa-a6765609a2fe" />
+
 - Based on the information above, the score for indicators 8a and 8b are 0.414 and 0.545, and the overall score for theme 8 is 0.466 (see Test case spreadsheet).
 <img width="2841" height="1610" alt="image" src="https://github.com/user-attachments/assets/1444b598-c6c0-481c-aead-7556e39bf538" />
 <img width="3031" height="1334" alt="image" src="https://github.com/user-attachments/assets/f72f4252-32e6-4a23-ba42-ea5a4fa709b3" />
@@ -64,7 +66,9 @@ Enter the following information in the Circulytics calculator:
 <img width="2356" height="378" alt="image" src="https://github.com/user-attachments/assets/6cf021de-6191-4cd7-9068-4a37cc189fd5" />
 
 - The score for theme 10 is the same as the score for indicator 10a since the company is not an energy producer (0.50)
+- Given the weights for each theme, the scores for Enablers and Outcomes should be 0.675 and 0.643 (see Test case spreadsheet). Since the Outcomes score is not higher than the Enablers score, the overall score is the average of Enablers and Outcomes: 0.659 (65.9% or a B). This agrees with the result from the Jupyter notebook:
 
-  Given the weights for each theme, the scores for Enablers and Outcomes should be 0.675 and 0.718 (see Test case spreadsheet). Since the Outcomes score is higher than the Enablers score, it is used for the Overall score, which is a B.
+<img width="921" height="622" alt="image" src="https://github.com/user-attachments/assets/0319123c-e520-410f-ae38-53628edba353" />
+
 
 
