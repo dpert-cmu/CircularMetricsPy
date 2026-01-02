@@ -13,4 +13,4 @@ see [Circulytics_Score_Calculator.ipynb](https://github.com/dpert-cmu/circulytic
 see [API_documentation.md](https://github.com/dpert-cmu/circulytics_calculator/blob/main/API_documentation.md)
 ## Community guidelines
 ## Tests
-
+see [Test case.md](https://github.com/dpert-cmu/circulytics_calculator/blob/main/tests/Test case.md)
