@@ -70,5 +70,22 @@ Enter the following information in the Circulytics calculator:
 
 <img width="921" height="622" alt="image" src="https://github.com/user-attachments/assets/0319123c-e520-410f-ae38-53628edba353" />
 
+- For a company that is not water-intensive, does not provide services, only produces products designed to be consumed (not used), and deals with material flows but does not own any material flows, the only Outcomes themes that apply to the company are themes 6, 8, and 10, while the only indicator that applies in theme 6 is 6b. The weights for themes 6, 8, and 10 are 70%, 15%, and 15%. This can be verified by entering the following company information:
+<img width="2359" height="617" alt="image" src="https://github.com/user-attachments/assets/15545380-609a-4918-bba6-88d6ce21b94d" />
+- Confirm that the weighting information only appears for themes 6, 8, and 10, and for theme 6, the data entry boxes for M_PROD2 and M_WASTE2 do not appear because the company does not produce products designed to be used.
+<img width="2372" height="440" alt="image" src="https://github.com/user-attachments/assets/f6092047-3026-4ae8-9238-40e3e3414f1a" />
+- Confirm that the data entry boxes for Outcomes indicators only appear for themes 6, 8, and 10, and only indicator 6b appears for theme 6. 
+<img width="2116" height="384" alt="image" src="https://github.com/user-attachments/assets/0a87eaaf-a064-4d17-8e75-381ec3ce4a7c" />
+- Confirm correct weights for Outcomes themes are reflected in scoring.
+<img width="1203" height="805" alt="image" src="https://github.com/user-attachments/assets/79b183dd-b77c-4488-a3a3-4ea0774e2848" />
+- For a financial institution, the Outcomes themes 8, 10, and 11 apply, with weights of 70%, 15%, and 15%. This can be verified by entering the following company information:
+<img width="2359" height="622" alt="image" src="https://github.com/user-attachments/assets/b07db3bc-f2e8-408c-959b-017a6f8aacfb" />
+- Confirm that only themes 8, 10, and 11 appear in the user interface.
+- Enter the following indicator information for theme 11:
+<img width="1882" height="1669" alt="image" src="https://github.com/user-attachments/assets/e4504aff-64e3-4f4e-86e3-e258fd40ce4b" />
+- Based on the weights for the different categories, the score for theme 11 should be 64.29% (see Test case spreadsheet). Confirm this by calculating the Circulytics score:
+<img width="1108" height="805" alt="image" src="https://github.com/user-attachments/assets/79bc588d-655f-4c74-a4eb-cbf19fa0e77a" />
+
+
 
 
