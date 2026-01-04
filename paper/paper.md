@@ -11,6 +11,7 @@ authors:
     orcid: 0000-0002-3228-9510
     affiliation: 1
   - name: Ana Inés Torres
+    orcid: 0000-0001-8747-3406
     affiliation: 1
 affiliations:
  - name: Department of Chemical Engineering, Carnegie Mellon University, Pittsburgh, Pennsylvania, USA
