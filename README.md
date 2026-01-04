@@ -8,6 +8,7 @@ Since the Circulytics platform is closed to submissions, it is difficult for com
 The Circulytics calculator is also extensible to other applications requiring mixed numeric and categorical data entry and processing, such as surveys for human subject research or quizzes assessing student understanding in academic coursework.
 ## Installation instructions
 After cloning the repository, run `pip install -e .` from the root directory to install the package.
+
 Dependencies:
 - ipywidgets
 - numpy
