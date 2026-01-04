@@ -769,8 +769,8 @@ theme_11_indicators = {
                      {"label": "Private Equity", "type": "slider"},
                      {"label": "Listed Equity", "type": "slider"},
                      {"label": "Other (specify)", "type": "slider"},
-            {"label": "Other (specify)", "type": "slider"},
-            {"label": "Other (specify)", "type": "slider"},
+                    {"label": "Other (specify)", "type": "slider"},
+                    {"label": "Other (specify)", "type": "slider"},
                 ],
         "type": "sliders",
     }

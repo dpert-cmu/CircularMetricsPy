@@ -250,18 +250,21 @@ def create_weighting_info_ui(company_info, applicable_outcomes_themes):
 
     theme_11_header = w.HTML(value='<h1>Weighting information for Theme 11. Finance</h1>')
     finance_weight_prompt = w.Label(value='What was the total size of each of the following categories at the end of the financial year stated at the beginning of the assessment (in USD)?')
-    lending = w.BoundedFloatText(value=0.0, min=0.0, description='Lending')
-    fixed_income = w.BoundedFloatText(value=0.0, min=0.0, description='Fixed income',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    private_eq = w.BoundedFloatText(value=0.0, min=0.0, description='Private equity',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    listed_eq = w.BoundedFloatText(value=0.0, min=0.0, description='Listed equity',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    other_fin_1 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    other_fin_2 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    other_fin_3 = w.BoundedFloatText(value=0.0, min=0.0, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
-    finance_widgets = [lending, fixed_income, private_eq, listed_eq, other_fin_1, other_fin_2, other_fin_3]
-    weighting_boxes[11] = w.VBox([theme_11_header, finance_weight_prompt,lending, fixed_income, private_eq, listed_eq, other_fin_1, other_fin_2, other_fin_3])
+    lending = w.BoundedFloatText(value=0.0, min=0.0, max=1e10, description='Lending')
+    fixed_income = w.BoundedFloatText(value=0.0, min=0.0, max=1e10, description='Fixed income',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    private_eq = w.BoundedFloatText(value=0.0, min=0.0, max=1e10, description='Private equity',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    listed_eq = w.BoundedFloatText(value=0.0, min=0.0, max=1e10, description='Listed equity',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    other_fin_1 = w.BoundedFloatText(value=0.0, min=0.0, max=1e10, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    other_fin_1_text_entry = w.Text(value='')
+    other_fin_2 = w.BoundedFloatText(value=0.0, min=0.0, max=1e10, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    other_fin_2_text_entry = w.Text(value='')
+    other_fin_3 = w.BoundedFloatText(value=0.0, min=0.0, max=1e10, description='Other (please specify)',style = {'description_width': 'initial'}, layout=w.Layout(width='300px'))
+    other_fin_3_text_entry = w.Text(value='')
+    finance_widgets = [lending, fixed_income, private_eq, listed_eq, other_fin_1,other_fin_1_text_entry, other_fin_2, other_fin_2_text_entry, other_fin_3, other_fin_3_text_entry]
+    weighting_boxes[11] = w.VBox([theme_11_header, finance_weight_prompt,lending, fixed_income, private_eq, listed_eq, other_fin_1,other_fin_1_text_entry, other_fin_2, other_fin_2_text_entry, other_fin_3, other_fin_3_text_entry])
     return weighting_boxes, M_in, M_prod1, M_prod2, M_waste1, M_waste2, water_demand, water_outflow, energy_use, energy_prod, asset_widgets_procured, asset_widgets_owned, finance_widgets
 
-def create_indicator_ui(company_info, industry_type, finance_weights, asset_widgets_owned, asset_widgets_procured):
+def create_indicator_ui(company_info, industry_type, finance_widgets, asset_widgets_owned, asset_widgets_procured):
     # Build the UI interfaces to enter the indicators
     theme_indicator_ui_boxes = {}
     theme_indicator_widgets = {}
@@ -306,9 +309,41 @@ def create_indicator_ui(company_info, industry_type, finance_weights, asset_widg
                     else:
                         weights = info["weights_other"]
                 elif theme_num == 11: # finance
-                    weights = [widget.value for widget in finance_weights]
+                    lending, fixed_income, private_eq, listed_eq, other_fin_1,other_fin_1_text_entry, other_fin_2, other_fin_2_text_entry, other_fin_3, other_fin_3_text_entry = finance_widgets
+                    category_labels = []
+                    category_weights = []
+                    for cat, wid in zip(['Lending', 'Fixed income', 'Private equity', 'Listed equity'], [lending, fixed_income, private_eq, listed_eq]):
+                        if wid.value > 0.0:
+                            category_labels.append(cat)
+                            category_weights.append(wid.value)
+                    if other_fin_1.value > 0.0:
+                        if other_fin_1_text_entry.value.strip() != "":
+                            category_labels.append(other_fin_1_text_entry.value.strip())
+                        else:
+                            category_labels.append("Other 1")
+                        category_weights.append(other_fin_1.value)
+                    if other_fin_2.value > 0.0:
+                        if other_fin_2_text_entry.value.strip() != "":
+                            category_labels.append(other_fin_2_text_entry.value.strip())
+                        else:
+                            category_labels.append("Other 2")
+                        category_weights.append(other_fin_2.value)
+                    if other_fin_3.value > 0.0:
+                        if other_fin_3_text_entry.value.strip() != "":
+                            category_labels.append(other_fin_3_text_entry.value.strip())
+                        else:
+                            category_labels.append("Other 3")
+                        category_weights.append(other_fin_3.value)
+                    info['items'] = [{"label": lab, "type": "slider"} for lab in category_labels]
+
+                    total_weight = (lending.value + fixed_income.value + private_eq.value + listed_eq.value + other_fin_1.value + other_fin_2.value + other_fin_3.value)
+                    if total_weight > 0.0:
+                        weights = [w/total_weight for w in category_weights]
+                    else:
+                        weights = [0.0 for _ in category_weights]
                 else:
                     weights = info.get("weights", None)
+
                 container, api = build_composite_slider_block(
                     indicator,
                     info['prompt'],

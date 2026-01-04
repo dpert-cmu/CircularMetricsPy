@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.2.0", "poetry-core", "wheel", "setuptools_scm[toml]>=7.1.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.setuptools_scm]
+
+[tool.poetry]
+name = "circulytics_calculator"
+version = "1.0.0"
+description = "A Jupyter notebook-based interface to the Ellen MacArthur Foundation's Circulytics framework"
+authors = ["Daniel Pert"]
+license = "MIT License"
+readme = "README.md"
+classifiers = [
+    'Intended Audience :: End Users/Desktop',
+    'Intended Audience :: Science/Research',
+    'Operating System :: MacOS',
+    'Operating System :: Microsoft :: Windows',
+    'Operating System :: Unix',
+    'Programming Language :: Python :: 3',
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10',
+    'Programming Language :: Python :: 3.11',
+    'Topic :: Scientific/Engineering',
+    'Topic :: Software Development :: Libraries :: Python Modules',
+]
+packages = [{ include = "utils.py", from = "src" },
+			{include =   "params.py", from="src"}]
+exclude = ["tests.*", "tests", ]
+
+[tool.poetry.dependencies]
+python = "^3.10.0"
+numpy = ">=2.2.0"
+pandas = ">2.2.0"
+ipython = ">8.0.0"
+ipykernel = ">7.0.0"

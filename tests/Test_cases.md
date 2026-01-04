@@ -1,4 +1,4 @@
-# Circulytics calculator test case
+# Circulytics calculator test cases
 
 Enter the following information in the Circulytics calculator:
 
