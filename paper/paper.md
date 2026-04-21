@@ -1,5 +1,5 @@
 ---
-title: "Circulytics calculator: A Jupyter notebook-based interface to the Ellen MacArthur Foundation's Circulytics framework" 
+title: "CircularMetricsPy: A Jupyter notebook-based interface to the Ellen MacArthur Foundation's Circulytics framework" 
 tags:
   - Python
   - Circular economy
@@ -23,7 +23,7 @@ bibliography: references.bib
 
 # Summary
 
-The Circulytics calculator is a Jupyter notebook-based user interface for the calculation of a company’s Circulytics score written in Python, based on the Ellen MacArthur Foundation’s archived methodology. It uses ipywidgets to define a set of functions that create graphical user interfaces for the data entry and calculation of scores for different categories of indicators used in Circulytics, including those involving a weighted sum of answers to multiple dropdown items, checkboxes, and numerical slider widgets. The user interface widgets for each indicator are created automatically based on JSON-formatted Python dictionaries. 
+CircularMetricsPy is a Jupyter notebook-based user interface for the calculation of a company’s Circulytics score written in Python, based on the Ellen MacArthur Foundation’s archived methodology. It uses ipywidgets to define a set of functions that create graphical user interfaces for the data entry and calculation of scores for different categories of indicators used in Circulytics, including those involving a weighted sum of answers to multiple dropdown items, checkboxes, and numerical slider widgets. The user interface widgets for each indicator are created automatically based on JSON-formatted Python dictionaries. 
 
 # Statement of need
 
@@ -41,7 +41,7 @@ Although various web-based tools have been developed in the context of circulari
 
 # Software Design
 
-The Circulytics calculator is a Jupyter notebook written in Python that can be used to calculate a company's Circulytics score based on data entered into a series of graphical user interfaces (GUIs) created with [ipywidgets](https://github.com/jupyter-widgets/ipywidgets). It is designed to be consistent with the methodology published by the Ellen MacArthur Foundation and uses a generalizable API to create the GUIs based on data defining the different indicators. Thus, it not only enables user-friendly circularity assessment but is also extensible to other applications requiring mixed numeric and categorical data entry and processing, such as surveys for human subject research or quizzes assessing student understanding in academic coursework.
+CircularMetricsPy includes a Jupyter notebook written in Python that can be used to calculate a company's Circulytics score based on data entered into a series of graphical user interfaces (GUIs) created with [ipywidgets](https://github.com/jupyter-widgets/ipywidgets). It is designed to be consistent with the methodology published by the Ellen MacArthur Foundation and uses a generalizable API to create the GUIs based on data defining the different indicators. Thus, it not only enables user-friendly circularity assessment but is also extensible to other applications requiring mixed numeric and categorical data entry and processing, such as surveys for human subject research or quizzes assessing student understanding in academic coursework.
 
 
 # Acknowledgements

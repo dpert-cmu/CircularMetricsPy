@@ -1,0 +1,44 @@
+{
+  "company": {
+    "industry_type": "CP.1 Consumer/end products: Apparel, textiles, footwear",
+    "services_sold": false,
+    "material_flows": true,
+    "ownership": true,
+    "water_intensive": true,
+    "energy_producer": false,
+    "types_of_flows": "Both of the above"
+  },
+  "enablers": {
+    "scores": {
+      "1": 0.0,
+      "2": 0.0,
+      "3": 0.0,
+      "4": 0.0,
+      "5": 0.0
+    }
+  },
+  "outcomes": {
+    "scores": {
+      "6": 0.0,
+      "8": 0.0,
+      "9": 0.0,
+      "10": 0.0
+    },
+    "weights": {
+      "6": 0.7,
+      "7": 0.0,
+      "8": 0.1,
+      "9": 0.1,
+      "10": 0.1,
+      "11": 0.0
+    }
+  },
+  "category_scores": {
+    "Enablers": 0.0,
+    "Outcomes": 0.0
+  },
+  "overall": {
+    "score": 0.0,
+    "letter": "E"
+  }
+}

@@ -1,6 +1,6 @@
-# Circulytics calculator test cases
+# CircularMetricsPy test cases
 
-Enter the following information in the Circulytics calculator:
+Enter the following information in CircularMetricsPy.ipynb:
 
 ### Basic company information
 <img width="700" alt="image" src="https://github.com/user-attachments/assets/dbd4e114-b40b-459b-b3bb-639dd723f4a6" />

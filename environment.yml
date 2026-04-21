@@ -1,4 +1,4 @@
-name: circulytics-calculator-env
+name: CircularMetricsPy_env
 channels:
   - conda-forge
   - defaults
@@ -82,5 +82,5 @@ dependencies:
   - zeromq=4.3.5=h387f397_9
   - zstd=1.5.7=hb78ec9c_6
   - pip:
-      - circulytics-calculator==1.0.0
-prefix: /home/danielpert/anaconda3/envs/circulytics-calculator-env
+      - CircularMetricsPy==1.0.0
+prefix: /home/danielpert/anaconda3/envs/CircularMetricsPy_env

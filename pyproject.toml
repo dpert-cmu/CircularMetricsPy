@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.setuptools_scm]
 
 [tool.poetry]
-name = "circulytics_calculator"
+name = "CircularMetricsPy"
 version = "1.0.0"
 description = "A Jupyter notebook-based interface to the Ellen MacArthur Foundation's Circulytics framework"
 authors = ["Daniel Pert"]

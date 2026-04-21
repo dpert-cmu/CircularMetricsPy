@@ -15,7 +15,7 @@ install_requires = \
  'ipykernel']
 
 setup_kwargs = {
-    'name': 'circulytics_calculator',
+    'name': 'CircularMetricsPy',
     'version': '1.0.0',
     'description': "A Jupyter notebook-based interface to the Ellen MacArthur Foundation's Circulytics framework",
     'author': 'Daniel Pert',
